@@ -4,8 +4,12 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -57,7 +61,9 @@ public class trangChu_MainActivity extends AppCompatActivity implements Navigati
     Toolbar toolbar;
     List<MovieResponse> movieResponseList = new ArrayList<>();
     FilmAdapter filmAdapter;
-
+    TextView tv_dangChieu;
+    LinearLayout ln_1, ln_2;
+    List<MovieResponse> searchMovieList;
 
     int[] dsPhimDangChieu = {R.drawable.avatar2_dongchaycuanuoc, R.drawable.culikhongbaogiokhoc, R.drawable.doibanhocyeu,
             R.drawable.kny_ss4, R.drawable.kny_ss5, R.drawable.modomdom, R.drawable.ngaytadayeu, R.drawable.ngayxuacomotchuyentinh,
@@ -82,6 +88,9 @@ public class trangChu_MainActivity extends AppCompatActivity implements Navigati
         searchEditText = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
 
         recyclerViewPhimDangChieu = findViewById(R.id.TC_RCV_dangChieu);
+        ln_1 = findViewById(R.id.ln_1);
+        ln_2 = findViewById(R.id.ln_2);
+        tv_dangChieu = findViewById(R.id.tv_dangChieu);
         recyclerViewPhimSapChieu = findViewById(R.id.TC_RCV_SapChieu);
         recyclerViewDichVu = findViewById(R.id.TC_RCV_dichVu);
         movieListPhimSapChieu = new ArrayList<>();
@@ -89,24 +98,27 @@ public class trangChu_MainActivity extends AppCompatActivity implements Navigati
         movieResponseList = new ArrayList<>();
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_menu_frmTrangChu);
+        Menu menu = navigationView.getMenu();
+
+        MenuItem menuItems = menu.findItem(R.id.nav_trangchu);
+        menuItems.setVisible(false);
         navigationView.setNavigationItemSelectedListener(menuItem -> {
             int id = menuItem.getItemId();
             if (id == R.id.nav_trangchu) {
                 // Xử lý nhấn "Trang chủ"
-                Toast.makeText(this, "Trang chủ được chọn", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, "Trang chủ được chọn", Toast.LENGTH_SHORT).show();
             } else if (id == R.id.nav_QLPhim) {
                 // Xử lý nhấn "Quản lý phim"
-                Intent intent = new Intent(this,dsPhim_ActivityMain.class);
+                Intent intent = new Intent(this, dsPhim_ActivityMain.class);
                 startActivity(intent);
-                Toast.makeText(this, "Quản lý phim được chọn", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, "Quản lý phim được chọn", Toast.LENGTH_SHORT).show();
             } else if (id == R.id.nav_dangxuat) {
                 // Xử lý nhấn "Đăng xuất"
-                Toast.makeText(this, "Đăng xuất được chọn", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, "Đăng xuất được chọn", Toast.LENGTH_SHORT).show();
             }
             return true;
 
         });
-
 
 
         toolbar = findViewById(R.id.toolbar);
@@ -150,24 +162,38 @@ public class trangChu_MainActivity extends AppCompatActivity implements Navigati
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                 xuLyTimKiemPhim(newText);
+                xuLyTimKiemPhim(newText);
+
                 return true;
             }
         });
         filmAdapter.setOnItemClickListener(position -> {
-            MovieResponse movieResponse = movieResponseList.get(position);
-            Intent intent = new Intent(trangChu_MainActivity.this, chiTietPhim_MainActivity.class);
-            if(movieResponse!= null){
-                intent.putExtra("MOVIE",movieResponse);
-                startActivity(intent);
-                Toast.makeText(this, "Bạn đã chọn phim: " + movieResponse.getMovieName(), Toast.LENGTH_SHORT).show();
+            MovieResponse movieResponse = null;
+
+            if (searchMovieList == null) {
+                movieResponse = movieResponseList.get(position);
+
+            } else {
+                movieResponse = searchMovieList.get(position);
             }
+
+            Intent intent = new Intent(trangChu_MainActivity.this, chiTietPhim_MainActivity.class);
+            if (movieResponse != null) {
+                intent.putExtra("MOVIE", movieResponse);
+                startActivity(intent);
+//                Toast.makeText(this, "Bạn đã chọn phim: " + movieResponse.getMovieName(), Toast.LENGTH_SHORT).show();
+            }
+
 
         });
     }
 
     private void xuLyTimKiemPhim(String newText) {
-        List<MovieResponse> searchMovieList = new ArrayList<>();
+        searchMovieList = new ArrayList<>();
+
+        tv_dangChieu.setText("Tìm Kiếm...");
+        ln_2.setVisibility(View.GONE);
+        ln_1.setVisibility(View.GONE);
         for (MovieResponse response : movieResponseList) {
             if (response.getMovieName().toLowerCase().contains(newText.toLowerCase())) {
                 searchMovieList.add(response);
@@ -176,10 +202,14 @@ public class trangChu_MainActivity extends AppCompatActivity implements Navigati
         }
         if (searchMovieList.isEmpty()) {
             filmAdapter.setSearchList(searchMovieList);
+        } else if (searchMovieList.size() == movieResponseList.size()) {
+            filmAdapter.setSearchList(searchMovieList);
+            tv_dangChieu.setText("Đang chiếu");
+            ln_2.setVisibility(View.VISIBLE);
+            ln_1.setVisibility(View.VISIBLE);
         } else {
             filmAdapter.setSearchList(searchMovieList);
         }
-
     }
 
     private void layTatCaPhim() {
@@ -194,15 +224,16 @@ public class trangChu_MainActivity extends AppCompatActivity implements Navigati
                         ApiResponse<List<MovieResponse>> apiResponse = response.body();
                         if (apiResponse.getCode() == 0) {
                             filmAdapter.movieList.clear();
+                            movieResponseList.clear();
                             movieResponseList.addAll(apiResponse.getResult());
                             filmAdapter.movieList.addAll(apiResponse.getResult());
                             filmAdapter.notifyDataSetChanged();
-                            Toast.makeText(trangChu_MainActivity.this, "Thanh cong 1", Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(trangChu_MainActivity.this, "Thanh cong 1", Toast.LENGTH_SHORT).show();
                         } else {
-                            Toast.makeText(trangChu_MainActivity.this, "That bai 1", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(trangChu_MainActivity.this, "That bai ", Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        Toast.makeText(trangChu_MainActivity.this, "That bai 2: Do body null", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(trangChu_MainActivity.this, "That bai: Do body null", Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     try {
@@ -240,7 +271,7 @@ public class trangChu_MainActivity extends AppCompatActivity implements Navigati
 
         // Cài đặt Adapter
         ImageAdapter adapter = new ImageAdapter(this, imageList);
-        recyclerViewDichVu.setLayoutManager(new GridLayoutManager(this, 2));
+        recyclerViewDichVu.setLayoutManager(new GridLayoutManager(this, 1));
         recyclerViewDichVu.setAdapter(adapter);
     }
 
@@ -355,6 +386,11 @@ public class trangChu_MainActivity extends AppCompatActivity implements Navigati
         snapHelper.attachToRecyclerView(recyclerViewPhimDangChieu);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        layTatCaPhim();
+    }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
