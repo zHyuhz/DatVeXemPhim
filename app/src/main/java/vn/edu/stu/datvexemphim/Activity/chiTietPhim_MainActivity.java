@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide;
 import vn.edu.stu.datvexemphim.DTO.Response.MovieResponse;
 import vn.edu.stu.datvexemphim.R;
 import vn.edu.stu.datvexemphim.Retrofit.RetrofitSer;
+import vn.edu.stu.datvexemphim.ViewMatch.FormatDate;
 
 public class chiTietPhim_MainActivity extends AppCompatActivity {
     TextView tv_theLoai, tv_moTa, tv_Item_movieName, tv_Item_length, tv_Item_date;
@@ -75,7 +76,7 @@ public class chiTietPhim_MainActivity extends AppCompatActivity {
         tv_Item_movieName.setText(movieResponse.getMovieName());
         tv_moTa.setText(movieResponse.getMovie_description());
         tv_theLoai.setText(movieResponse.getMovie_genres());
-        tv_Item_date.setText(movieResponse.getMovie_release());
+        tv_Item_date.setText(FormatDate.fomatDateSQL(movieResponse.getMovie_release()));
         tv_Item_length.setText(movieResponse.getMovie_length() + "m");
         String url = RetrofitSer.BASE_URL + movieResponse.getMovie_poster();
         Glide.with(chiTietPhim_MainActivity.this)
