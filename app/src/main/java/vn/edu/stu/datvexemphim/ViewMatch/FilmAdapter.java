@@ -11,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.util.List;
 
@@ -25,23 +24,15 @@ public class FilmAdapter extends RecyclerView.Adapter<FilmAdapter.FilmViewHolder
 
     private Context context;
     private int resoure;
-
     public void setSearchList(List<MovieResponse> movieList) {
         this.movieList = movieList;
         notifyDataSetChanged();
     }
-
     private OnItemClickListener onItemClickListener;
-    private OnItemLongClickListener OnItemLongClickListener;
 
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.onItemClickListener = listener;
     }
-
-    public void setOnItemLongClickListener(OnItemLongClickListener listener) {
-        this.OnItemLongClickListener = listener;
-    }
-
     public FilmAdapter(Context context, int resoure, List<MovieResponse> movieList) {
         this.context = context;
         this.movieList = movieList;
@@ -66,8 +57,7 @@ public class FilmAdapter extends RecyclerView.Adapter<FilmAdapter.FilmViewHolder
         Glide.with(context)
                 .load(url)
                 .placeholder(R.drawable.ic_launcher_background) // Hình ảnh hiển thị trong khi tải
-                .error(R.drawable.ic_launcher_foreground)// Hình ảnh hiển thị khi lỗi
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .error(R.drawable.ic_launcher_foreground)             // Hình ảnh hiển thị khi lỗi
                 .into(holder.movieImageView);
 
         // Load ảnh nếu có (dùng thư viện như Glide hoặc Picasso)
@@ -77,17 +67,6 @@ public class FilmAdapter extends RecyclerView.Adapter<FilmAdapter.FilmViewHolder
                 onItemClickListener.onItemClick(position);
             }
         });
-        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                if (OnItemLongClickListener != null) {
-                    OnItemLongClickListener.onItemLongClick(v, position);
-                    return true;
-                }
-                return false;
-            }
-        });
-
     }
 
     @Override

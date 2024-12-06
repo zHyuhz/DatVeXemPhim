@@ -1,7 +1,6 @@
 package vn.edu.stu.datvexemphim.Models;
 
 import java.util.Date;
-import java.util.List;
 
 public class Movies {
 
@@ -13,7 +12,6 @@ public class Movies {
     private String movie_length;
 
     private int movie_poster;
-    private List<Schedule> scheduleList;
 
     public Movies(String movie_name, String movie_length,String movie_genres, int movie_poster) {
         this.movie_name = movie_name;
@@ -22,13 +20,6 @@ public class Movies {
         this.movie_poster = movie_poster;
     }
 
-    public Movies(String movie_name, String movie_length,String movie_genres, int movie_poster,List<Schedule> scheduleList) {
-        this.movie_name = movie_name;
-        this.movie_genres = movie_genres;
-        this.movie_length = movie_length;
-        this.movie_poster = movie_poster;
-        this.scheduleList = scheduleList;
-    }
 
 
     public String getMovie_name() {
