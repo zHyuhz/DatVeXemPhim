@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     android:background="#000000"
-    tools:context=".Activity.dsPhim_ActivityMain">
+    tools:context=".Activity.dsPhim_MainActivity">
 
     <LinearLayout
         android:id="@+id/ln_title"

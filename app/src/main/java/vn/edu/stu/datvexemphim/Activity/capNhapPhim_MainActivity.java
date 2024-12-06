@@ -14,7 +14,7 @@ import java.util.Calendar;
 
 import vn.edu.stu.datvexemphim.R;
 
-public class capNhapPhim_Activity extends AppCompatActivity {
+public class capNhapPhim_MainActivity extends AppCompatActivity {
     ImageButton imageButton;
     TextView tv_valueDate;
 
@@ -49,14 +49,14 @@ public class capNhapPhim_Activity extends AppCompatActivity {
 
                 // Hiển thị DatePickerDialog
                 DatePickerDialog datePickerDialog = new DatePickerDialog(
-                        capNhapPhim_Activity.this, // Activity hiện tại
+                        capNhapPhim_MainActivity.this, // Activity hiện tại
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker view, int selectedYear, int selectedMonth, int selectedDay) {
                                 // Xử lý ngày được chọn
                                 String selectedDate = selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear;
                                 tv_valueDate.setText(selectedDate);
-                                Toast.makeText(capNhapPhim_Activity.this, "Ngày đã chọn: " + selectedDate, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(capNhapPhim_MainActivity.this, "Ngày đã chọn: " + selectedDate, Toast.LENGTH_SHORT).show();
                             }
                         },
                         year, // Năm mặc định

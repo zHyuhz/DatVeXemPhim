@@ -13,7 +13,6 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -37,6 +36,8 @@ import vn.edu.stu.datvexemphim.ApiService.ApiService;
 import vn.edu.stu.datvexemphim.DTO.Response.ApiResponse;
 import vn.edu.stu.datvexemphim.DTO.Response.MovieResponse;
 import vn.edu.stu.datvexemphim.Models.Movies;
+import vn.edu.stu.datvexemphim.Models.Schedule;
+import vn.edu.stu.datvexemphim.Models.TimeSlot;
 import vn.edu.stu.datvexemphim.R;
 import vn.edu.stu.datvexemphim.Retrofit.RetrofitSer;
 import vn.edu.stu.datvexemphim.ViewMatch.FilmAdapter;
@@ -96,7 +97,7 @@ public class trangChu_MainActivity extends AppCompatActivity implements Navigati
                 Toast.makeText(this, "Trang chủ được chọn", Toast.LENGTH_SHORT).show();
             } else if (id == R.id.nav_QLPhim) {
                 // Xử lý nhấn "Quản lý phim"
-                Intent intent = new Intent(this,dsPhim_ActivityMain.class);
+                Intent intent = new Intent(this, dsPhim_MainActivity.class);
                 startActivity(intent);
                 Toast.makeText(this, "Quản lý phim được chọn", Toast.LENGTH_SHORT).show();
             } else if (id == R.id.nav_dangxuat) {
@@ -106,7 +107,6 @@ public class trangChu_MainActivity extends AppCompatActivity implements Navigati
             return true;
 
         });
-
 
 
         toolbar = findViewById(R.id.toolbar);
@@ -150,15 +150,15 @@ public class trangChu_MainActivity extends AppCompatActivity implements Navigati
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                 xuLyTimKiemPhim(newText);
+                xuLyTimKiemPhim(newText);
                 return true;
             }
         });
         filmAdapter.setOnItemClickListener(position -> {
             MovieResponse movieResponse = movieResponseList.get(position);
             Intent intent = new Intent(trangChu_MainActivity.this, chiTietPhim_MainActivity.class);
-            if(movieResponse!= null){
-                intent.putExtra("MOVIE",movieResponse);
+            if (movieResponse != null) {
+                intent.putExtra("MOVIE", movieResponse);
                 startActivity(intent);
                 Toast.makeText(this, "Bạn đã chọn phim: " + movieResponse.getMovieName(), Toast.LENGTH_SHORT).show();
             }
@@ -360,4 +360,8 @@ public class trangChu_MainActivity extends AppCompatActivity implements Navigati
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         return false;
     }
+
 }
+
+
+

@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:background="#000000"
     android:padding="10dp"
-    tools:context=".Activity.capNhapPhim_Activity"
+    tools:context=".Activity.capNhapPhim_MainActivity"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <LinearLayout
         android:id="@+id/ln_img"

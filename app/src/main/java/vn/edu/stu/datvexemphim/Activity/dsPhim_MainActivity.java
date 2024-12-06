@@ -2,7 +2,6 @@ package vn.edu.stu.datvexemphim.Activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
@@ -26,10 +25,9 @@ import vn.edu.stu.datvexemphim.DTO.Response.MovieResponse;
 import vn.edu.stu.datvexemphim.R;
 import vn.edu.stu.datvexemphim.Retrofit.RetrofitSer;
 import vn.edu.stu.datvexemphim.ViewMatch.FilmAdapter;
-import vn.edu.stu.datvexemphim.ViewMatch.MoviesAdapter;
 import vn.edu.stu.datvexemphim.ViewMatch.ScaleCenterLinearLayoutManager;
 
-public class dsPhim_ActivityMain extends AppCompatActivity {
+public class dsPhim_MainActivity extends AppCompatActivity {
 
     RecyclerView recyclerView;
     FloatingActionButton btn_add;
@@ -70,12 +68,12 @@ public class dsPhim_ActivityMain extends AppCompatActivity {
                             movieResponseList.addAll(apiResponse.getResult());
                             filmAdapter.movieList.addAll(apiResponse.getResult());
                             filmAdapter.notifyDataSetChanged();
-                            Toast.makeText(dsPhim_ActivityMain.this, "Thanh cong 1", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(dsPhim_MainActivity.this, "Thanh cong 1", Toast.LENGTH_SHORT).show();
                         } else {
-                            Toast.makeText(dsPhim_ActivityMain.this, "That bai 1", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(dsPhim_MainActivity.this, "That bai 1", Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        Toast.makeText(dsPhim_ActivityMain.this, "That bai 2: Do body null", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(dsPhim_MainActivity.this, "That bai 2: Do body null", Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     try {
@@ -87,10 +85,10 @@ public class dsPhim_ActivityMain extends AppCompatActivity {
                         // Lấy giá trị của "message"
                         String errorMessage = errorJson.has("message") ? errorJson.get("message").getAsString() : "Unknown error";
                         // Bạn có thể xử lý chuỗi lỗi ở đây và hiển thị thông báo lỗi
-                        Toast.makeText(dsPhim_ActivityMain.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(dsPhim_MainActivity.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
                     } catch (IOException e) {
                         e.printStackTrace();
-                        Toast.makeText(dsPhim_ActivityMain.this, "Error parsing error body", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(dsPhim_MainActivity.this, "Error parsing error body", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
