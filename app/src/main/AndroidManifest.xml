@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -18,28 +19,42 @@
         android:theme="@style/Theme.DatVeXemPhim"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+        <meta-data
+            android:name="android.support.test.runner.AndroidJUnitRunner"
+            android:value="androidx.test.runner.AndroidJUnitRunner" />
         <activity
-            android:name=".Activity.dsPhim_ActivityMain"
+            android:name=".Activity.lichChieu_MainActivity"
+            android:exported="false" >
+
+        </activity>
+        <activity
+            android:name=".Activity.chonChoNgoi_MainActivity"
+            android:exported="false">
+
+        </activity>
+        <activity
+            android:name=".Activity.dsPhim_MainActivity"
             android:exported="false" />
         <activity
-            android:name=".Activity.capNhapPhim_Activity"
-            android:exported="true" />
+            android:name=".Activity.capNhapPhim_MainActivity"
+            android:exported="false" />
         <activity
             android:name=".Activity.chiTietPhim_MainActivity"
             android:exported="false" />
         <activity
             android:name=".Activity.trangChu_MainActivity"
-            android:exported="true">
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".Activity.dangNhap_MainActivity"
-            android:exported="false" />
+            android:exported="true" >
+
+        </activity>
     </application>
 
 </manifest>
