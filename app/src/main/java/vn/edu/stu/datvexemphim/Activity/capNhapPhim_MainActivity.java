@@ -41,7 +41,8 @@ import vn.edu.stu.datvexemphim.R;
 import vn.edu.stu.datvexemphim.Retrofit.RetrofitSer;
 import vn.edu.stu.datvexemphim.ViewMatch.FormatDate;
 
-public class capNhapPhim_Activity extends AppCompatActivity {
+
+public class capNhapPhim_MainActivity extends AppCompatActivity {
     public static final int PICK_IMAGE_REQUEST = 1;
     ImageButton imageButton;
     TextView tv_valueDate, frmUpdate_edt_maPhim;
@@ -160,12 +161,12 @@ public class capNhapPhim_Activity extends AppCompatActivity {
                 public void onResponse(Call<ApiResponse<MovieResponse>> call, Response<ApiResponse<MovieResponse>> response) {
                     if(response.isSuccessful() && response.body() != null){
                         if(response.body().getCode() == 0){
-                            Toast.makeText(capNhapPhim_Activity.this,"Sua thanh cong",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(capNhapPhim_MainActivity.this,"Sua thanh cong",Toast.LENGTH_SHORT).show();
                             finish();
                         }else
-                            Toast.makeText(capNhapPhim_Activity.this,response.body().getMessage(),Toast.LENGTH_SHORT).show();
+                            Toast.makeText(capNhapPhim_MainActivity.this,response.body().getMessage(),Toast.LENGTH_SHORT).show();
                     }else {
-                        Toast.makeText(capNhapPhim_Activity.this,"BODY NULL",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(capNhapPhim_MainActivity.this,"BODY NULL",Toast.LENGTH_SHORT).show();
                     }
                 }
 
@@ -198,7 +199,7 @@ public class capNhapPhim_Activity extends AppCompatActivity {
                 @Override
                 public void onResponse(Call<ApiResponse<MovieResponse>> call, Response<ApiResponse<MovieResponse>> response) {
                     if (response.isSuccessful()) {
-                        Toast.makeText(capNhapPhim_Activity.this, "Thêm thành công ", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(capNhapPhim_MainActivity.this, "Thêm thành công ", Toast.LENGTH_SHORT).show();
                         finish();
                     } else {
                         // Xử lý lỗi
@@ -288,7 +289,7 @@ public class capNhapPhim_Activity extends AppCompatActivity {
             tv_valueDate.setText(FormatDate.fomatDateSQL(movieResponse.getMovie_release()));
             frmUpdate_edt_doDaiPhim.setText(String.valueOf(movieResponse.getMovie_length()) + "m");
             String url = RetrofitSer.BASE_URL + movieResponse.getMovie_poster();
-            Glide.with(capNhapPhim_Activity.this)
+            Glide.with(capNhapPhim_MainActivity.this)
                     .load(url)
                     .placeholder(R.drawable.ic_launcher_background) // Hình ảnh hiển thị trong khi tải
                     .error(R.drawable.ic_launcher_foreground)             // Hình ảnh hiển thị khi lỗi
@@ -311,7 +312,7 @@ public class capNhapPhim_Activity extends AppCompatActivity {
 
                 // Hiển thị DatePickerDialog
                 DatePickerDialog datePickerDialog = new DatePickerDialog(
-                        capNhapPhim_Activity.this, // Activity hiện tại
+                        capNhapPhim_MainActivity.this, // Activity hiện tại
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker view, int selectedYear, int selectedMonth, int selectedDay) {

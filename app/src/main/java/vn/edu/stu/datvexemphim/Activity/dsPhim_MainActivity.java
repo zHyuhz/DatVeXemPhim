@@ -5,7 +5,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.DialogInterface;
@@ -39,9 +38,10 @@ import vn.edu.stu.datvexemphim.Retrofit.RetrofitSer;
 import vn.edu.stu.datvexemphim.ViewMatch.FilmAdapter;
 import vn.edu.stu.datvexemphim.ViewMatch.MoviesAdapter;
 import vn.edu.stu.datvexemphim.ViewMatch.OnItemClickListener;
+
 import vn.edu.stu.datvexemphim.ViewMatch.ScaleCenterLinearLayoutManager;
 
-public class dsPhim_ActivityMain extends AppCompatActivity {
+public class dsPhim_MainActivity extends AppCompatActivity {
 
     RecyclerView recyclerView;
     FloatingActionButton btn_add;
@@ -116,22 +116,22 @@ public class dsPhim_ActivityMain extends AppCompatActivity {
             @Override
             public void onItemClick(int position) {
                 MovieResponse movieResponse = movieResponseList.get(position);
-                Intent intent = new Intent(dsPhim_ActivityMain.this, capNhapPhim_Activity.class);
+                Intent intent = new Intent(dsPhim_MainActivity.this, capNhapPhim_MainActivity.class);
                 intent.putExtra("MOVIE", movieResponse);
                 startActivity(intent);
-                Toast.makeText(dsPhim_ActivityMain.this, movieResponse.getMovieName(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(dsPhim_MainActivity.this, movieResponse.getMovieName(), Toast.LENGTH_SHORT).show();
             }
         });
         btn_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(dsPhim_ActivityMain.this, capNhapPhim_Activity.class);
+                Intent intent = new Intent(dsPhim_MainActivity.this, capNhapPhim_MainActivity.class);
                 startActivity(intent);
 
             }
         });
         filmAdapter.setOnItemLongClickListener((view, position) -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(dsPhim_ActivityMain.this);
+            AlertDialog.Builder builder = new AlertDialog.Builder(dsPhim_MainActivity.this);
             builder.setTitle("XOA PHIM")
                     .setMessage("BAN CO MUON XOA HAY KHONG")
                     .setCancelable(false)
@@ -145,7 +145,7 @@ public class dsPhim_ActivityMain extends AppCompatActivity {
                     .setPositiveButton("TU CHOI", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            Toast.makeText(dsPhim_ActivityMain.this, String.valueOf(which), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(dsPhim_MainActivity.this, String.valueOf(which), Toast.LENGTH_SHORT).show();
                         }
                     });
             AlertDialog alertDialog = builder.create();
@@ -170,16 +170,16 @@ public class dsPhim_ActivityMain extends AppCompatActivity {
                     filmAdapter.movieList.clear();
                     filmAdapter.movieList.addAll(movieResponseList);
                     filmAdapter.notifyDataSetChanged();
-                    Toast.makeText(dsPhim_ActivityMain.this, "Xóa thành công", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(dsPhim_MainActivity.this, "Xóa thành công", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(dsPhim_ActivityMain.this, "Xóa thất bại", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(dsPhim_MainActivity.this, "Xóa thất bại", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponse<String>> call, Throwable t) {
                 Log.e("API Error", "Lỗi: " + t.getMessage());
-                Toast.makeText(dsPhim_ActivityMain.this, "Xay ra loi ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(dsPhim_MainActivity.this, "Xay ra loi ", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -201,10 +201,11 @@ public class dsPhim_ActivityMain extends AppCompatActivity {
                             filmAdapter.notifyDataSetChanged();
                             //  Toast.makeText(dsPhim_ActivityMain.this, "Thanh cong 1", Toast.LENGTH_SHORT).show();
                         } else {
-                            Toast.makeText(dsPhim_ActivityMain.this, "That bai", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(dsPhim_MainActivity.this, "That bai", Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        Toast.makeText(dsPhim_ActivityMain.this, "That bai: Do body null", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(dsPhim_MainActivity.this, "That bai: Do body null", Toast.LENGTH_SHORT).show();
+
                     }
                 } else {
                     try {
@@ -216,10 +217,10 @@ public class dsPhim_ActivityMain extends AppCompatActivity {
                         // Lấy giá trị của "message"
                         String errorMessage = errorJson.has("message") ? errorJson.get("message").getAsString() : "Unknown error";
                         // Bạn có thể xử lý chuỗi lỗi ở đây và hiển thị thông báo lỗi
-                        Toast.makeText(dsPhim_ActivityMain.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(dsPhim_MainActivity.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
                     } catch (IOException e) {
                         e.printStackTrace();
-                        Toast.makeText(dsPhim_ActivityMain.this, "Error parsing error body", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(dsPhim_MainActivity.this, "Error parsing error body", Toast.LENGTH_SHORT).show();
                     }
                 }
             }

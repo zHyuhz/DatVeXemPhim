@@ -1,17 +1,18 @@
 package vn.edu.stu.datvexemphim.Activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 
 import vn.edu.stu.datvexemphim.DTO.Response.MovieResponse;
+import vn.edu.stu.datvexemphim.Models.Movies;
 import vn.edu.stu.datvexemphim.R;
 import vn.edu.stu.datvexemphim.Retrofit.RetrofitSer;
 import vn.edu.stu.datvexemphim.ViewMatch.FormatDate;
@@ -20,6 +21,8 @@ public class chiTietPhim_MainActivity extends AppCompatActivity {
     TextView tv_theLoai, tv_moTa, tv_Item_movieName, tv_Item_length, tv_Item_date;
     ImageView img_posterMovie, img_ChiTiet_troLai;
     View include_chitietphim;
+    Button btn_tiepTuc;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,10 +45,11 @@ public class chiTietPhim_MainActivity extends AppCompatActivity {
         tv_Item_movieName = include_chitietphim.findViewById(R.id.tv_Item_movieName);
         tv_Item_length = include_chitietphim.findViewById(R.id.tv_Item_length);
         tv_Item_date = include_chitietphim.findViewById(R.id.tv_Item_date);
+        btn_tiepTuc = findViewById(R.id.frmChiTietPhim_btn_tiepTuc);
 
-         setDetailsMovie(getResultItent());
+        setDetailsMovie(getResultItent());
 
-       // MovieResponse movieResponse = getResultItent();
+        // MovieResponse movieResponse = getResultItent();
 //        if (movieResponse != null){
 //            Toast.makeText(this, "Nhận được: ", Toast.LENGTH_SHORT).show();
 //        }else  Toast.makeText(this, " eo Nhận được: ", Toast.LENGTH_SHORT).show();
@@ -59,6 +63,12 @@ public class chiTietPhim_MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 finish();
             }
+        });
+
+        btn_tiepTuc.setOnClickListener(v -> {
+            Intent intent = new Intent(chiTietPhim_MainActivity.this, lichChieu_MainActivity.class);
+
+            startActivity(intent);
         });
     }
 
@@ -84,7 +94,6 @@ public class chiTietPhim_MainActivity extends AppCompatActivity {
                 .placeholder(R.drawable.ic_launcher_background) // Hình ảnh hiển thị trong khi tải
                 .error(R.drawable.ic_launcher_foreground)             // Hình ảnh hiển thị khi lỗi
                 .into(img_posterMovie);
-
-
     }
+
 }
