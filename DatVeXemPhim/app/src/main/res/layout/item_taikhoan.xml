@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    app:cardElevation="8dp"
+    android:padding="5dp"
+    android:backgroundTint="#555555"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+<LinearLayout
+
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="100dp">
+    <LinearLayout
+
+        android:weightSum="4"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:weightSum="2"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+            <TextView
+                android:text="Mã"
+                android:gravity="center"
+                android:layout_weight="1"
+                android:textSize="20sp"
+                android:textColor="#000000"
+                android:background="#FCC434"
+                android:textStyle="bold"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+            <TextView
+                android:layout_weight="1"
+                android:id="@+id/item_TaiKhoan_ma"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textColor="#000000"
+                android:text="123"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:background="@drawable/custom_item_taikhoan"
+                />
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:weightSum="2"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_weight="1"
+                android:text="Tên tài khoản"
+                android:gravity="center"
+                android:textSize="20sp"
+                android:background="#FCC434"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+            <TextView
+                android:layout_weight="1"
+                android:id="@+id/item_TaiKhoan_tenTK"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textColor="#000000"
+                android:text="123"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:background="@drawable/custom_item_taikhoan"
+                />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:weightSum="2"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_weight="1"
+                android:text="Mật khẩu"
+                android:gravity="center"
+                android:textSize="20sp"
+                android:background="#FCC434"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+            <TextView
+                android:layout_weight="1"
+                android:id="@+id/item_TaiKhoan_matKhau"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textColor="#000000"
+                android:text="123"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:background="@drawable/custom_item_taikhoan"
+                />
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:weightSum="2"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_weight="1"
+                android:text="Vai trò"
+                android:gravity="center"
+                android:textSize="20sp"
+                android:background="#FCC434"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+            <TextView
+                android:layout_weight="1"
+                android:id="@+id/item_TaiKhoan_vaiTro"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textColor="#000000"
+                android:text="123"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:background="@drawable/custom_item_taikhoan"
+                />
+        </LinearLayout>
+
+    </LinearLayout>
+</LinearLayout>
+</androidx.cardview.widget.CardView>
