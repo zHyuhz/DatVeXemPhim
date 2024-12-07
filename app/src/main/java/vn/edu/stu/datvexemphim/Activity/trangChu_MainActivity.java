@@ -124,6 +124,9 @@ public class trangChu_MainActivity extends AppCompatActivity implements Navigati
             } else if (id == R.id.nav_QLNguoiDung) {
                 Intent intent = new Intent(this, dsNguoiDung_MainActivity.class);
                 startActivity(intent);
+            }else if (id == R.id.nav_QLVe) {
+                Intent intent = new Intent(this, dsVe_MainActivity.class);
+                startActivity(intent);
             }
             return true;
 

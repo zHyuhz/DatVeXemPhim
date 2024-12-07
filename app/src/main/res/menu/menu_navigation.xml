@@ -16,9 +16,14 @@
             android:icon="@drawable/icons_account"
             android:title="Quản lý tài khoản" />
         <item
+            android:id="@+id/nav_QLVe"
+            android:icon="@drawable/icons_ticket"
+            android:title="Quản lý vé" />
+        <item
             android:id="@+id/nav_QLNguoiDung"
             android:icon="@drawable/icons_account"
             android:title="Quản lý người dùng" />
+
     </group>
     <group>
         <item android:title="Khác">

@@ -19,16 +19,21 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".Activity.capNhatNguoiDung_MainActivity"
-            android:exported="false" />
-        <activity
-            android:name=".Activity.dsNguoiDung_MainActivity"
+            android:name=".Activity.dsVe_MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".Activity.capNhatNguoiDung_MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.dsNguoiDung_MainActivity"
+            android:exported="true">
+
         </activity>
         <activity
             android:name=".Activity.capNhatTaiKhoan_MainActivity"
@@ -40,7 +45,7 @@
 
         <activity
             android:name=".Activity.dsTaiKhoan_MainActivity"
-            android:exported="true"></activity>
+            android:exported="true" />
         <activity
             android:name=".Activity.lichChieu_MainActivity"
             android:exported="false" />
@@ -58,9 +63,7 @@
             android:exported="false" />
         <activity
             android:name=".Activity.trangChu_MainActivity"
-            android:exported="true">
-
-        </activity>
+            android:exported="true" />
         <activity
             android:name=".Activity.dangNhap_MainActivity"
             android:exported="true" />
