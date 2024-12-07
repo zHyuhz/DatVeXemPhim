@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ln_item_ngaythang"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="10dp"
+    android:layout_margin="10dp"
+    android:background="#333333"
+    android:orientation="vertical">
+
+
+    <TextView
+        android:id="@+id/tvMonth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="T.12"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#F2F2F2" />
+    <TextView
+        android:layout_gravity="center"
+        android:id="@+id/tvDay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="15"
+        android:textSize="20sp"
+        android:textColor="@color/textView_unSelected" />
+
+</LinearLayout>

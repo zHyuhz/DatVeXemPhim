@@ -7,7 +7,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -19,19 +18,35 @@
         android:theme="@style/Theme.DatVeXemPhim"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+        <activity
+            android:name=".Activity.capNhatNguoiDung_MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.dsNguoiDung_MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".Activity.capNhatTaiKhoan_MainActivity"
+            android:exported="false" />
+
         <meta-data
             android:name="android.support.test.runner.AndroidJUnitRunner"
             android:value="androidx.test.runner.AndroidJUnitRunner" />
+
+        <activity
+            android:name=".Activity.dsTaiKhoan_MainActivity"
+            android:exported="true"></activity>
         <activity
             android:name=".Activity.lichChieu_MainActivity"
-            android:exported="false" >
-
-        </activity>
+            android:exported="false" />
         <activity
             android:name=".Activity.chonChoNgoi_MainActivity"
-            android:exported="false">
-
-        </activity>
+            android:exported="false" />
         <activity
             android:name=".Activity.dsPhim_MainActivity"
             android:exported="false" />
@@ -43,18 +58,12 @@
             android:exported="false" />
         <activity
             android:name=".Activity.trangChu_MainActivity"
-            android:exported="true" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:exported="true">
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".Activity.dangNhap_MainActivity"
-            android:exported="true" >
-
-        </activity>
+            android:exported="true" />
     </application>
 
 </manifest>
