@@ -58,6 +58,7 @@ public class capNhapPhim_MainActivity extends AppCompatActivity {
 
         addControls();
         addEvents();
+
     }
 
     private void addControls() {
