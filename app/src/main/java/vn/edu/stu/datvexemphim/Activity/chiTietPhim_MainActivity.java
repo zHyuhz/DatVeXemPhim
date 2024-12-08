@@ -22,7 +22,7 @@ public class chiTietPhim_MainActivity extends AppCompatActivity {
     ImageView img_posterMovie, img_ChiTiet_troLai;
     View include_chitietphim;
     Button btn_tiepTuc;
-
+    MovieResponse movieResponse = new MovieResponse();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,13 +67,13 @@ public class chiTietPhim_MainActivity extends AppCompatActivity {
 
         btn_tiepTuc.setOnClickListener(v -> {
             Intent intent = new Intent(chiTietPhim_MainActivity.this, lichChieu_MainActivity.class);
-
+            intent.putExtra("MovieID",movieResponse.getMovieId());
             startActivity(intent);
         });
     }
 
     private MovieResponse getResultItent() {
-        MovieResponse movieResponse = null;
+
         Intent intent = getIntent();
         if (intent != null) {
             movieResponse = (MovieResponse) intent.getSerializableExtra("MOVIE");

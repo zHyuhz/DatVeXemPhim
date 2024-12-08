@@ -38,6 +38,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.http.HEAD;
 import vn.edu.stu.datvexemphim.ApiService.ApiService;
+import vn.edu.stu.datvexemphim.DTO.Response.AccountResponse;
 import vn.edu.stu.datvexemphim.DTO.Response.ApiResponse;
 import vn.edu.stu.datvexemphim.DTO.Response.MovieResponse;
 import vn.edu.stu.datvexemphim.Models.Movies;
@@ -66,6 +67,7 @@ public class trangChu_MainActivity extends AppCompatActivity implements Navigati
     TextView tv_dangChieu;
     LinearLayout ln_1, ln_2;
     List<MovieResponse> searchMovieList;
+    private static String ROLE = "USER";
 
     int[] dsPhimDangChieu = {R.drawable.avatar2_dongchaycuanuoc, R.drawable.culikhongbaogiokhoc, R.drawable.doibanhocyeu,
             R.drawable.kny_ss4, R.drawable.kny_ss5, R.drawable.modomdom, R.drawable.ngaytadayeu, R.drawable.ngayxuacomotchuyentinh,
@@ -80,15 +82,15 @@ public class trangChu_MainActivity extends AppCompatActivity implements Navigati
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.frm_trangchu_activity);
-
+        getRole();
         addControls();
         addEvents();
     }
 
     private void addControls() {
+        getRole();
         searchView = findViewById(R.id.TC_searchView);
         searchEditText = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
-
         recyclerViewPhimDangChieu = findViewById(R.id.TC_RCV_dangChieu);
         ln_1 = findViewById(R.id.ln_1);
         ln_2 = findViewById(R.id.ln_2);
@@ -100,31 +102,24 @@ public class trangChu_MainActivity extends AppCompatActivity implements Navigati
         movieResponseList = new ArrayList<>();
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_menu_frmTrangChu);
-        Menu menu = navigationView.getMenu();
-
-        MenuItem menuItems = menu.findItem(R.id.nav_trangchu);
-        menuItems.setVisible(false);
         navigationView.setNavigationItemSelectedListener(menuItem -> {
             int id = menuItem.getItemId();
             if (id == R.id.nav_trangchu) {
-                // Xử lý nhấn "Trang chủ"
-//                Toast.makeText(this, "Trang chủ được chọn", Toast.LENGTH_SHORT).show();
             } else if (id == R.id.nav_QLPhim) {
-                // Xử lý nhấn "Quản lý phim"
-
                 Intent intent = new Intent(this, dsPhim_MainActivity.class);
                 startActivity(intent);
-//                Toast.makeText(this, "Quản lý phim được chọn", Toast.LENGTH_SHORT).show();
             } else if (id == R.id.nav_dangxuat) {
-                // Xử lý nhấn "Đăng xuất"
-//                Toast.makeText(this, "Đăng xuất được chọn", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(trangChu_MainActivity.this, dangNhap_MainActivity.class);
+                ROLE = "USER";
+                startActivity(intent);
+                finish();
             } else if (id == R.id.nav_QLTaiKhoan) {
                 Intent intent = new Intent(this, dsTaiKhoan_MainActivity.class);
                 startActivity(intent);
             } else if (id == R.id.nav_QLNguoiDung) {
                 Intent intent = new Intent(this, dsNguoiDung_MainActivity.class);
                 startActivity(intent);
-            }else if (id == R.id.nav_QLVe) {
+            } else if (id == R.id.nav_QLVe) {
                 Intent intent = new Intent(this, dsVe_MainActivity.class);
                 startActivity(intent);
             }
@@ -154,6 +149,34 @@ public class trangChu_MainActivity extends AppCompatActivity implements Navigati
         // khoiTaoPhimDangChieu();
         khoiTaoPhimSapChieu();
         khoiTaoDichVu();
+
+    }
+
+    private void getRole() {
+        Intent intent = getIntent();
+        String username = intent.getStringExtra("username");
+
+        ApiService apiService = RetrofitSer.getRetrofitInstance().create(ApiService.class);
+        Call<ApiResponse<AccountResponse>> call = apiService.findAccountByUsername(username);
+        call.enqueue(new Callback<ApiResponse<AccountResponse>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<AccountResponse>> call, Response<ApiResponse<AccountResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    AccountResponse accountResponse = response.body().getResult();
+                    if (accountResponse.getAccountRole().equals("ADMIN")) {
+                        ROLE = "ADMIN";
+                    }
+                    ;
+                    updateUIBasedOnRole();
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<AccountResponse>> call, Throwable t) {
+
+            }
+        });
 
     }
 
@@ -195,6 +218,25 @@ public class trangChu_MainActivity extends AppCompatActivity implements Navigati
 //                Toast.makeText(this, "Bạn đã chọn phim: " + movieResponse.getMovieName(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void updateUIBasedOnRole() {
+        if (ROLE.equals("USER")) {
+            Menu menu = navigationView.getMenu();
+
+            MenuItem menuItemsTrangChu = menu.findItem(R.id.nav_trangchu);
+            MenuItem menuItemsQLPhim = menu.findItem(R.id.nav_QLPhim);
+            MenuItem menuItemsQLTaiKhoan = menu.findItem(R.id.nav_QLTaiKhoan);
+            MenuItem menuItemsQLVe = menu.findItem(R.id.nav_QLVe);
+            MenuItem menuItemsQLNguoiDung = menu.findItem(R.id.nav_QLNguoiDung);
+
+            menuItemsTrangChu.setVisible(false);
+            menuItemsQLPhim.setVisible(false);
+            menuItemsQLTaiKhoan.setVisible(false);
+            menuItemsQLVe.setVisible(false);
+            menuItemsQLNguoiDung.setVisible(false);
+
+        }
     }
 
     private void xuLyTimKiemPhim(String newText) {
@@ -399,6 +441,7 @@ public class trangChu_MainActivity extends AppCompatActivity implements Navigati
     protected void onResume() {
         super.onResume();
         layTatCaPhim();
+        getRole();
     }
 
     @Override

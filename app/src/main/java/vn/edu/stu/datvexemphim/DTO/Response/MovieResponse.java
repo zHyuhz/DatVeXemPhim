@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MovieResponse implements Serializable {
 
-    private int movie_id;
+    private int movieId;
 
     private String movieName;
 

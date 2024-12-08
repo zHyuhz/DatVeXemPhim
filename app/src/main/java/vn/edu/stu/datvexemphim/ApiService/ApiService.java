@@ -14,8 +14,11 @@ import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import vn.edu.stu.datvexemphim.DTO.Request.LoginRequest;
+import vn.edu.stu.datvexemphim.DTO.Response.AccountResponse;
 import vn.edu.stu.datvexemphim.DTO.Response.ApiResponse;
 import vn.edu.stu.datvexemphim.DTO.Response.MovieResponse;
+import vn.edu.stu.datvexemphim.DTO.Response.ScheduleDateTimeResponse;
 
 public interface ApiService {
     //    @POST("/accounts/register")
@@ -53,4 +56,13 @@ public interface ApiService {
             @Query("movieLength") int movieLength,
             @Part MultipartBody.Part moviePoster
     );
+    @POST("/auth/login")
+    Call<ApiResponse<Void>> login(@Body LoginRequest loginRequest);
+
+    @GET("/accounts/{username}")
+    Call<ApiResponse<AccountResponse>> findAccountByUsername(@Path("username") String username);
+
+    @GET("/schedules/{movieID}")
+    Call<ApiResponse<List<ScheduleDateTimeResponse>>> findScheduleDateTimeResponse(@Path("movieID") int movieID);
 }
+

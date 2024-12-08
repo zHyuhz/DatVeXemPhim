@@ -47,10 +47,10 @@ public class dsNguoiDung_MainActivity extends AppCompatActivity {
     }
 
     private void addControls() {
-        img_btn_troLai =findViewById(R.id.img_dsNguoiDung_troLai);
-        flBtn_themMoi =findViewById(R.id.frmDanhSachNguoiDung_btn_themMoi);
+        img_btn_troLai = findViewById(R.id.img_dsNguoiDung_troLai);
+        flBtn_themMoi = findViewById(R.id.frmDanhSachNguoiDung_btn_themMoi);
 
-        listView =findViewById(R.id.lv_NguoiDung);
+        listView = findViewById(R.id.lv_NguoiDung);
         userList = new ArrayList<>();
         userList.add(new User("Nguyen Van A", "0987654321"));
         userList.add(new User("Tran Thi B", "0912345678"));
@@ -67,14 +67,14 @@ public class dsNguoiDung_MainActivity extends AppCompatActivity {
         userList.add(new User("Le Minh N", "0978901234"));
         userList.add(new User("Bui Thi O", "0954321987"));
         userList.add(new User("Dang Van P", "0921098765"));
-        adapter = new UserAdapter(this,R.layout.item_nguoidung,userList);
+        adapter = new UserAdapter(this, R.layout.item_nguoidung, userList);
         listView.setAdapter(adapter);
 
 
     }
 
     private void addEvents() {
-        img_btn_troLai.setOnClickListener( v ->{
+        img_btn_troLai.setOnClickListener(v -> {
             Intent intent = new Intent(this, trangChu_MainActivity.class);
             startActivity(intent);
         });

@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.libraries.places.api.Places;
@@ -25,17 +26,28 @@ import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import vn.edu.stu.datvexemphim.ApiService.ApiService;
+import vn.edu.stu.datvexemphim.DTO.Request.LoginRequest;
+import vn.edu.stu.datvexemphim.DTO.Response.ApiResponse;
 import vn.edu.stu.datvexemphim.R;
+import vn.edu.stu.datvexemphim.Retrofit.RetrofitSer;
 
 public class dangNhap_MainActivity extends AppCompatActivity {
-    EditText edt_matKhau, edt_ngaySinh, edt_gioiTinh, edt_email, edt_thanhPho;
+    EditText edt_matKhau, edt_ngaySinh, edt_gioiTinh, edt_email, edt_thanhPho, edt_loginTaiKhoan, edt_loginMatKhau, edt_taiKhoan;
     TextView tv_dangKy;
     CardView dangKyCardView, dangNhapCardView;
-    Button DK_btn_quayLai;
+    Button DK_btn_quayLai, btn_dangNhap;
 
     private boolean isPasswordVisible = true;
 
@@ -50,8 +62,10 @@ public class dangNhap_MainActivity extends AppCompatActivity {
 
 
     private void addControls() {
+        edt_taiKhoan = findViewById(R.id.edt_taiKhoan);
+
         edt_matKhau = findViewById(R.id.edt_matKhau);
-        edt_ngaySinh= findViewById(R.id.edt_ngaySinh);
+        edt_ngaySinh = findViewById(R.id.edt_ngaySinh);
         edt_gioiTinh = findViewById(R.id.edt_gioiTinh);
         edt_email = findViewById(R.id.edt_email);
         edt_thanhPho = findViewById(R.id.edt_thanhPho);
@@ -62,7 +76,12 @@ public class dangNhap_MainActivity extends AppCompatActivity {
         dangNhapCardView = findViewById(R.id.cardView_dangNhap);
 
         DK_btn_quayLai = findViewById(R.id.DK_btn_quayLai);
+
+        edt_loginTaiKhoan = findViewById(R.id.edt_loginTaiKhoan);
+        edt_loginMatKhau = findViewById(R.id.edt_loginMatKhau);
+        btn_dangNhap = findViewById(R.id.btn_dangNhap);
     }
+
     private void addEvents() {
         xulyAnHienMatKhau();
         xulyChuyenSangGDDangKy();
@@ -71,6 +90,65 @@ public class dangNhap_MainActivity extends AppCompatActivity {
         xulyHienThiDialogGioiTinh();
         xulyNhapEmail();
 
+        btn_dangNhap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String userName = edt_loginTaiKhoan.getText().toString();
+                String password = edt_loginMatKhau.getText().toString();
+                LoginRequest loginRequest = LoginRequest.builder().userName(userName).password(password).build();
+                xuLyDangNhap(loginRequest);
+            }
+        });
+
+    }
+
+    private void xuLyDangNhap(LoginRequest loginRequest) {
+
+        ApiService apiService = RetrofitSer.getRetrofitInstance().create(ApiService.class);
+        Call<ApiResponse<Void>> call = apiService.login(loginRequest);
+        call.enqueue(new Callback<ApiResponse<Void>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Void>> call, Response<ApiResponse<Void>> response) {
+
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse<Void> apiResponse = response.body();
+                    if (apiResponse.getCode() == 0) {
+
+                        Intent intent = new Intent(dangNhap_MainActivity.this,trangChu_MainActivity.class);
+                        intent.putExtra("username",loginRequest.getUserName());
+                        startActivity(intent);
+
+                        Toast.makeText(dangNhap_MainActivity.this, apiResponse.getMessage(), Toast.LENGTH_SHORT).show();
+                        finish();
+                    } else {
+                        Toast.makeText(dangNhap_MainActivity.this, apiResponse.getMessage(), Toast.LENGTH_SHORT).show();
+
+                    }
+                } else {
+                    try {
+                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "null";
+                        if(!errorBody.equals("null")){
+                            JSONObject jsonObject = new JSONObject(errorBody);
+                            int errorCode = jsonObject.optInt("code",-1);
+                            String errorMessage = jsonObject.optString("message","Không có thông báo lỗi");
+                            Toast.makeText(dangNhap_MainActivity.this,errorMessage, Toast.LENGTH_SHORT).show();
+                        }
+                        else {
+                            Toast.makeText(dangNhap_MainActivity.this, "Lỗi không xác định", Toast.LENGTH_SHORT).show();
+                        }
+
+                    } catch (JSONException | IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<Void>> call, Throwable t) {
+                Log.e("API_ERROR", "Error: ", t); // Để kiểm tra chi tiết lỗi
+            }
+        });
     }
 
     private void xulyHienThiDialogGioiTinh() {
@@ -116,6 +194,7 @@ public class dangNhap_MainActivity extends AppCompatActivity {
         String emailPattern = "^[a-zA-Z0-9._%+-]+@gmail\\.com$";
         return email.matches(emailPattern);
     }
+
     private void xulyHienThiDialogNgaySinh() {
         edt_ngaySinh.setOnClickListener(v -> {
             Calendar calendar = Calendar.getInstance();
@@ -132,6 +211,7 @@ public class dangNhap_MainActivity extends AppCompatActivity {
             datePickerDialog.show();
         });
     }
+
     private void xulyQuayLayDangNhap() {
         DK_btn_quayLai.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -152,6 +232,7 @@ public class dangNhap_MainActivity extends AppCompatActivity {
             }
         });
     }
+
     private void xulyAnHienMatKhau() {
         edt_matKhau.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -172,6 +253,7 @@ public class dangNhap_MainActivity extends AppCompatActivity {
             }
         });
     }
+
     private void togglePasswordVisibility() {
         if (edt_matKhau.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
             // Hiển thị mật khẩu
