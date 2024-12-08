@@ -82,13 +82,12 @@ public class trangChu_MainActivity extends AppCompatActivity implements Navigati
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.frm_trangchu_activity);
-
+        getRole();
         addControls();
         addEvents();
     }
 
     private void addControls() {
-
         getRole();
         searchView = findViewById(R.id.TC_searchView);
         searchEditText = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
@@ -103,6 +102,30 @@ public class trangChu_MainActivity extends AppCompatActivity implements Navigati
         movieResponseList = new ArrayList<>();
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_menu_frmTrangChu);
+        navigationView.setNavigationItemSelectedListener(menuItem -> {
+            int id = menuItem.getItemId();
+            if (id == R.id.nav_trangchu) {
+            } else if (id == R.id.nav_QLPhim) {
+                Intent intent = new Intent(this, dsPhim_MainActivity.class);
+                startActivity(intent);
+            } else if (id == R.id.nav_dangxuat) {
+                Intent intent = new Intent(trangChu_MainActivity.this, dangNhap_MainActivity.class);
+                ROLE = "USER";
+                startActivity(intent);
+                finish();
+            } else if (id == R.id.nav_QLTaiKhoan) {
+                Intent intent = new Intent(this, dsTaiKhoan_MainActivity.class);
+                startActivity(intent);
+            } else if (id == R.id.nav_QLNguoiDung) {
+                Intent intent = new Intent(this, dsNguoiDung_MainActivity.class);
+                startActivity(intent);
+            } else if (id == R.id.nav_QLVe) {
+                Intent intent = new Intent(this, dsVe_MainActivity.class);
+                startActivity(intent);
+            }
+            return true;
+
+        });
 
 
         toolbar = findViewById(R.id.toolbar);
@@ -148,6 +171,7 @@ public class trangChu_MainActivity extends AppCompatActivity implements Navigati
                 }
 
             }
+
             @Override
             public void onFailure(Call<ApiResponse<AccountResponse>> call, Throwable t) {
 
@@ -211,32 +235,6 @@ public class trangChu_MainActivity extends AppCompatActivity implements Navigati
             menuItemsQLTaiKhoan.setVisible(false);
             menuItemsQLVe.setVisible(false);
             menuItemsQLNguoiDung.setVisible(false);
-
-
-            navigationView.setNavigationItemSelectedListener(menuItem -> {
-                int id = menuItem.getItemId();
-                if (id == R.id.nav_trangchu) {
-                } else if (id == R.id.nav_QLPhim) {
-
-
-                    Intent intent = new Intent(this, dsPhim_MainActivity.class);
-                    startActivity(intent);
-
-                } else if (id == R.id.nav_dangxuat) {
-
-                } else if (id == R.id.nav_QLTaiKhoan) {
-                    Intent intent = new Intent(this, dsTaiKhoan_MainActivity.class);
-                    startActivity(intent);
-                } else if (id == R.id.nav_QLNguoiDung) {
-                    Intent intent = new Intent(this, dsNguoiDung_MainActivity.class);
-                    startActivity(intent);
-                } else if (id == R.id.nav_QLVe) {
-                    Intent intent = new Intent(this, dsVe_MainActivity.class);
-                    startActivity(intent);
-                }
-                return true;
-
-            });
 
         }
     }
@@ -443,6 +441,7 @@ public class trangChu_MainActivity extends AppCompatActivity implements Navigati
     protected void onResume() {
         super.onResume();
         layTatCaPhim();
+        getRole();
     }
 
     @Override

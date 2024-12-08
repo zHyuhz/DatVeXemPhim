@@ -115,7 +115,7 @@ public class capNhapPhim_MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 MovieResponse movieResponse = new MovieResponse();
-                movieResponse.setMovie_id(Integer.parseInt(frmUpdate_edt_maPhim.getText().toString()));
+                movieResponse.setMovieId(Integer.parseInt(frmUpdate_edt_maPhim.getText().toString()));
                 movieResponse.setMovieName(frmUpdate_edt_tenPhim.getText().toString());
                 movieResponse.setMovie_description(frmUpdate_edt_moTaPhim.getText().toString());
                 movieResponse.setMovie_genres(frmUpdate_edt_theLoaiPhim.getText().toString());
@@ -127,7 +127,7 @@ public class capNhapPhim_MainActivity extends AppCompatActivity {
                 try {
                     xuLyCapNhat(
                             bitmap
-                            , movieResponse.getMovie_id()
+                            , movieResponse.getMovieId()
                             , movieResponse.getMovieName()
                             , movieResponse.getMovie_description()
                             , movieResponse.getMovie_genres()
@@ -284,7 +284,7 @@ public class capNhapPhim_MainActivity extends AppCompatActivity {
     private Boolean setDetailsMovie(MovieResponse movieResponse) {
         try {
             frmUpdate_edt_tenPhim.setText(movieResponse.getMovieName());
-            frmUpdate_edt_maPhim.setText(String.valueOf(movieResponse.getMovie_id()));
+            frmUpdate_edt_maPhim.setText(String.valueOf(movieResponse.getMovieId()));
             frmUpdate_edt_moTaPhim.setText(movieResponse.getMovie_description());
             frmUpdate_edt_theLoaiPhim.setText(movieResponse.getMovie_genres());
             tv_valueDate.setText(FormatDate.fomatDateSQL(movieResponse.getMovie_release()));
