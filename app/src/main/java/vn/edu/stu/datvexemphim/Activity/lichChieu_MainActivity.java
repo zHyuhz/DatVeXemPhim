@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -25,6 +26,7 @@ import vn.edu.stu.datvexemphim.ApiService.ApiService;
 import vn.edu.stu.datvexemphim.CustomEvent.IDatePicker;
 import vn.edu.stu.datvexemphim.DTO.Response.ApiResponse;
 import vn.edu.stu.datvexemphim.DTO.Response.ScheduleDateTimeResponse;
+import vn.edu.stu.datvexemphim.DTO.Response.ScheduleResponse;
 import vn.edu.stu.datvexemphim.Models.Schedule;
 import vn.edu.stu.datvexemphim.Models.TimeSlot;
 import vn.edu.stu.datvexemphim.R;
@@ -42,6 +44,7 @@ public class lichChieu_MainActivity extends AppCompatActivity implements IDatePi
     List<Schedule> scheduleList = new ArrayList<>();
     DatePickerAdapter2 adapter;
     TimePickerAdapter adapter2;
+    ScheduleResponse scheduleSelected = new ScheduleResponse();
 
 
     @Override
@@ -51,6 +54,7 @@ public class lichChieu_MainActivity extends AppCompatActivity implements IDatePi
 
         addControls();
         addEvents();
+
     }
 
     private void addControls() {
@@ -67,8 +71,8 @@ public class lichChieu_MainActivity extends AppCompatActivity implements IDatePi
 //        hienThiGio();
 
         btn_tiepTuc.setOnClickListener(v -> {
-            Intent intent = new Intent(lichChieu_MainActivity.this, chonChoNgoi_MainActivity.class);
-            startActivity(intent);
+//            Intent intent = new Intent(lichChieu_MainActivity.this, chonChoNgoi_MainActivity.class);
+//            startActivity(intent);
         });
 
         btn_troLai.setOnClickListener(v -> {
@@ -135,13 +139,35 @@ public class lichChieu_MainActivity extends AppCompatActivity implements IDatePi
             }
         }
         adapter2 = new TimePickerAdapter(listTime, time -> {
-            Toast.makeText(lichChieu_MainActivity.this,
-                    "Giờ được chọn: " + time,
-                    Toast.LENGTH_SHORT).show();
+            getDateTime(response.getScheduleDate(), time, response.getMovies().getMovieId());
         });
 
         recyclerTime.setAdapter(adapter2);
     }
+
+    private void getDateTime(String date, String time, int movieId) {
+
+        ApiService apiService = RetrofitSer.getRetrofitInstance().create(ApiService.class);
+        Call<ApiResponse<ScheduleResponse>> call = apiService.findSchedules(date, time, movieId);
+        call.enqueue(new Callback<ApiResponse<ScheduleResponse>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<ScheduleResponse>> call, Response<ApiResponse<ScheduleResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    if (response.body().getCode() == 0) {
+                        scheduleSelected = response.body().getResult();
+                    }
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<ScheduleResponse>> call, Throwable t) {
+                Log.e("API",t.getMessage());
+            }
+        });
+
+    }
+
 
     public List<TimeSlot> getSampleData() {
         List<TimeSlot> timeList = new ArrayList<>();
