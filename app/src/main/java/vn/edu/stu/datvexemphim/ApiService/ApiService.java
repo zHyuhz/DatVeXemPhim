@@ -19,6 +19,7 @@ import vn.edu.stu.datvexemphim.DTO.Response.AccountResponse;
 import vn.edu.stu.datvexemphim.DTO.Response.ApiResponse;
 import vn.edu.stu.datvexemphim.DTO.Response.MovieResponse;
 import vn.edu.stu.datvexemphim.DTO.Response.ScheduleDateTimeResponse;
+import vn.edu.stu.datvexemphim.DTO.Response.ScheduleResponse;
 
 public interface ApiService {
     //    @POST("/accounts/register")
@@ -64,5 +65,12 @@ public interface ApiService {
 
     @GET("/schedules/{movieID}")
     Call<ApiResponse<List<ScheduleDateTimeResponse>>> findScheduleDateTimeResponse(@Path("movieID") int movieID);
+
+    @GET("/schedules/search")
+    Call<ApiResponse<ScheduleResponse>> findSchedules(
+            @Query("scheduleDate") String scheduleDate,  // Chuyển LocalDate thành String
+            @Query("scheduleStart") String scheduleStart, // Chuyển LocalTime thành String
+            @Query("movieId") int movieId
+    );
 }
 
