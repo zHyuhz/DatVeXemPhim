@@ -20,6 +20,7 @@ import vn.edu.stu.datvexemphim.DTO.Response.ApiResponse;
 import vn.edu.stu.datvexemphim.DTO.Response.MovieResponse;
 import vn.edu.stu.datvexemphim.DTO.Response.ScheduleDateTimeResponse;
 import vn.edu.stu.datvexemphim.DTO.Response.ScheduleResponse;
+import vn.edu.stu.datvexemphim.DTO.Response.SeatsResponse;
 
 public interface ApiService {
     //    @POST("/accounts/register")
@@ -57,6 +58,7 @@ public interface ApiService {
             @Query("movieLength") int movieLength,
             @Part MultipartBody.Part moviePoster
     );
+
     @POST("/auth/login")
     Call<ApiResponse<Void>> login(@Body LoginRequest loginRequest);
 
@@ -72,5 +74,11 @@ public interface ApiService {
             @Query("scheduleStart") String scheduleStart, // Chuyển LocalTime thành String
             @Query("movieId") int movieId
     );
+
+    @GET("/seats/{movieID}")
+    Call<ApiResponse<List<SeatsResponse>>> getSeatByMovie(@Path("movieID") int movieID);
+
+    @GET("/seats/search")
+    Call<ApiResponse<SeatsResponse>> getSearch(@Query("seatRow") char seatRow, @Query("seatNumber") int seatNumber, @Query("roomId") int roomId);
 }
 

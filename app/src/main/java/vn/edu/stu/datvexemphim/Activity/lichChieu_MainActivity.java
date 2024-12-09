@@ -44,7 +44,7 @@ public class lichChieu_MainActivity extends AppCompatActivity implements IDatePi
     List<Schedule> scheduleList = new ArrayList<>();
     DatePickerAdapter2 adapter;
     TimePickerAdapter adapter2;
-    ScheduleResponse scheduleSelected = new ScheduleResponse();
+    ScheduleResponse scheduleSelected = null;
 
 
     @Override
@@ -71,8 +71,17 @@ public class lichChieu_MainActivity extends AppCompatActivity implements IDatePi
 //        hienThiGio();
 
         btn_tiepTuc.setOnClickListener(v -> {
-//            Intent intent = new Intent(lichChieu_MainActivity.this, chonChoNgoi_MainActivity.class);
-//            startActivity(intent);
+            if (scheduleSelected != null) {
+                Intent intent = new Intent(lichChieu_MainActivity.this, chonChoNgoi_MainActivity.class);
+                intent.putExtra("scheduleSelected",scheduleSelected);
+                startActivity(intent);
+                Log.d("ScheduleResponse", "scheduleSelected: " + scheduleSelected);
+                Toast.makeText(lichChieu_MainActivity.this,scheduleSelected.getRoom().getRoomName(),Toast.LENGTH_LONG).show();
+            }else
+            {
+                Toast.makeText(lichChieu_MainActivity.this,"Vui long chon lich chieu",Toast.LENGTH_LONG).show();
+            }
+//
         });
 
         btn_troLai.setOnClickListener(v -> {
@@ -146,7 +155,7 @@ public class lichChieu_MainActivity extends AppCompatActivity implements IDatePi
     }
 
     private void getDateTime(String date, String time, int movieId) {
-
+        scheduleSelected = new ScheduleResponse();
         ApiService apiService = RetrofitSer.getRetrofitInstance().create(ApiService.class);
         Call<ApiResponse<ScheduleResponse>> call = apiService.findSchedules(date, time, movieId);
         call.enqueue(new Callback<ApiResponse<ScheduleResponse>>() {
@@ -162,7 +171,7 @@ public class lichChieu_MainActivity extends AppCompatActivity implements IDatePi
 
             @Override
             public void onFailure(Call<ApiResponse<ScheduleResponse>> call, Throwable t) {
-                Log.e("API",t.getMessage());
+                Log.e("API", t.getMessage());
             }
         });
 
