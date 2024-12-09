@@ -2,6 +2,7 @@ package vn.edu.stu.datvexemphim.Activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -17,13 +18,21 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import vn.edu.stu.datvexemphim.ApiService.ApiService;
 import vn.edu.stu.datvexemphim.CustomEvent.IDatePicker;
+import vn.edu.stu.datvexemphim.DTO.Response.ApiResponse;
+import vn.edu.stu.datvexemphim.DTO.Response.ScheduleResponse;
+import vn.edu.stu.datvexemphim.DTO.Response.SeatsResponse;
 import vn.edu.stu.datvexemphim.R;
+import vn.edu.stu.datvexemphim.Retrofit.RetrofitSer;
 import vn.edu.stu.datvexemphim.ViewMatch.DatePickerAdapter;
 
-public class chonChoNgoi_MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class chonChoNgoi_MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-
+    ScheduleResponse scheduleResponse = null;
     private final int[] gheNgoi = {R.id.btn_A1, R.id.btn_A2, R.id.btn_A3, R.id.btn_A4, R.id.btn_A5, R.id.btn_B1,
             R.id.btn_B2, R.id.btn_B3, R.id.btn_B4, R.id.btn_B5, R.id.btn_C1, R.id.btn_C2, R.id.btn_C3
             , R.id.btn_C4, R.id.btn_C5, R.id.btn_D1, R.id.btn_D2, R.id.btn_D3, R.id.btn_D4, R.id.btn_D5
@@ -32,25 +41,80 @@ public class chonChoNgoi_MainActivity extends AppCompatActivity implements View.
     Button btn_comfirm;
     boolean[] selected = new boolean[gheNgoi.length];
     ImageView btn_troLai;
+
+    List<String> isSelectedSeatList = null;
+    List<SeatsResponse> sendList = new ArrayList<>();
+    ;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.frm_chon_cho_ngoi_activity);
 
+        hienThiGhe();
         addControls();
         addEvents();
 
 
     }
 
+    private void hienThiGhe() {
+        scheduleResponse = new ScheduleResponse();
+        Intent intent = getIntent();
+        scheduleResponse = (ScheduleResponse) intent.getSerializableExtra("scheduleSelected");
+        isSelectedSeatList = new ArrayList<>();
+        int roomID = scheduleResponse.getRoom().getRoomId();
+
+        // Gọi API và xử lý danh sách ghế
+        ApiService apiService = RetrofitSer.getRetrofitInstance().create(ApiService.class);
+        Call<ApiResponse<List<SeatsResponse>>> call = apiService.getSeatByMovie(roomID);
+        call.enqueue(new Callback<ApiResponse<List<SeatsResponse>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<SeatsResponse>>> call, Response<ApiResponse<List<SeatsResponse>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<SeatsResponse> seatsResponseList = response.body().getResult();
+                    for (SeatsResponse seat : seatsResponseList) {
+                        if (seat.getIsAvailable()) {
+                            isSelectedSeatList.add(seat.getSeatRow() + String.valueOf(seat.getSeatNumber()));
+                        }
+                    }
+                    displaySeats();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<List<SeatsResponse>>> call, Throwable t) {
+                Toast.makeText(chonChoNgoi_MainActivity.this, "Lỗi tải dữ liệu!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
     private void addControls() {
-        for (int id : gheNgoi) {
-            findViewById(id).setOnClickListener(this);
-        }
+
         btn_comfirm = findViewById(R.id.btn_comfirm);
         btn_troLai = findViewById(R.id.img_ChoNgoi_troLai);
+//        for (int id : gheNgoi) {
+//            findViewById(id).setOnClickListener(this);
+//        }
+//        btn_comfirm = findViewById(R.id.btn_comfirm);
+//        btn_troLai = findViewById(R.id.img_ChoNgoi_troLai);
 
 
+    }
+
+    private void displaySeats() {
+        for (int id : gheNgoi) {
+            Button button = findViewById(id);
+
+            if (!isSelectedSeatList.contains(button.getText().toString())) {
+                button.setBackgroundColor(ContextCompat.getColor(this, R.color.textView_selected));
+                button.setTextColor(ContextCompat.getColor(this, R.color.white));
+            }
+            if (button != null) {
+                button.setOnClickListener(this);
+            }
+        }
     }
 
     private void addEvents() {
@@ -70,25 +134,59 @@ public class chonChoNgoi_MainActivity extends AppCompatActivity implements View.
 
 
     public void confirmSelected() {
-        List<Integer> getSeats = getSelectedSeats();
-        if (getSeats.isEmpty()) {
+        List<Integer> selectedSeats = getSelectedSeats() ;
+        if (selectedSeats.isEmpty()) {
             Toast.makeText(this, "Chưa chọn ghế!", Toast.LENGTH_SHORT).show();
         } else {
-            StringBuilder builder = new StringBuilder("Ghế đã chọn: ");
-            for (int seat : getSeats) {
-                builder.append("E").append(seat + 1).append(", ");
+            for (int seat : selectedSeats) {
+                Button buttons = findViewById(gheNgoi[seat]);
+                String temp = buttons.getText().toString();
+                char row = ' ';
+                int number = 0;
+                for (char ch : temp.toCharArray()) {
+                    if (Character.isLetter(ch)) {
+                        row = ch;
+                    } else if (Character.isDigit(ch)) {
+                        number = Character.getNumericValue(ch);
+                    }
+                }
+
+                getSeat(row, number, scheduleResponse.getRoom().getRoomId());
+                Log.d("Check1", "Check: " + row);
+                Log.d("Check2", "Check: " + number);
+                Log.d("Check3", "Check: " + scheduleResponse.getRoom().getRoomId());
+                Log.d("Check4", "Check: " + sendList);
             }
-            Toast.makeText(this, builder.toString(), Toast.LENGTH_SHORT).show();
         }
+    }
 
+    private void getSeat(char seatRow, int seatNumber, int roomId) {
+        ApiService apiService = RetrofitSer.getRetrofitInstance().create(ApiService.class);
+        Call<ApiResponse<SeatsResponse>> call = apiService.getSearch(seatRow, seatNumber, roomId);
+        call.enqueue(new Callback<ApiResponse<SeatsResponse>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<SeatsResponse>> call, Response<ApiResponse<SeatsResponse>> response) {
+                Log.d("RESPONSE_BODY", "Body: " + response.body());
+                Log.d("RESPONSE_RESULT", "Check: " + response.body().getResult());
 
+                if (response.isSuccessful() && response.body() != null) {
+                    sendList.add(response.body().getResult());
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<SeatsResponse>> call, Throwable t) {
+
+            }
+        });
     }
 
     public List<Integer> getSelectedSeats() {
         List<Integer> selectedSeats = new ArrayList<>();
         for (int i = 0; i < gheNgoi.length; i++) {
             if (selected[i]) {
-                selectedSeats.add(i + 1);
+                selectedSeats.add(i);
             }
         }
         return selectedSeats;
@@ -97,20 +195,31 @@ public class chonChoNgoi_MainActivity extends AppCompatActivity implements View.
     @Override
     public void onClick(View v) {
         int id = v.getId();
+        Button button = findViewById(id);
+
         for (int i = 0; i < gheNgoi.length; i++) {
             if (id == gheNgoi[i]) {
-                selected[i] = !selected[i];
-                Button button = findViewById(id);
-                if (selected[i]) {
-                    button.setBackgroundColor(ContextCompat.getColor(this, R.color.backGround_selected));
-                    button.setTextColor(ContextCompat.getColor(this, R.color.textView_selected));
+                // Đảo trạng thái ghế
+
+
+                // Kiểm tra xem ghế có nằm trong danh sách `isSelectedSeatList` hay không
+                if (isSelectedSeatList.contains(button.getText().toString())) {
+                    selected[i] = !selected[i];
+                    if (selected[i]) {
+
+                        button.setBackgroundColor(ContextCompat.getColor(this, R.color.backGround_selected));
+                        button.setTextColor(ContextCompat.getColor(this, R.color.textView_selected));
+                    } else {
+                        button.setBackgroundColor(ContextCompat.getColor(this, R.color.backGround_unSelected));
+                        button.setTextColor(ContextCompat.getColor(this, R.color.textView_unSelected));
+                    }
                 } else {
-                    button.setBackgroundColor(ContextCompat.getColor(this, R.color.backGround_unSelected));
-                    button.setTextColor(ContextCompat.getColor(this, R.color.textView_unSelected));
+                    Toast.makeText(this, "Ghế Đã Có Người Đặt", Toast.LENGTH_SHORT).show();
                 }
                 break;
             }
         }
+
     }
 
 }

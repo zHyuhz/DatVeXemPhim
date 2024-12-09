@@ -1,5 +1,7 @@
 package vn.edu.stu.datvexemphim.DTO.Response;
 
+import java.io.Serializable;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,8 +11,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RoomResponse {
-    private int room_id;
+public class RoomResponse implements Serializable {
+    private int roomId;
 
     private String roomName;
 }

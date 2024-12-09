@@ -1,5 +1,6 @@
 package vn.edu.stu.datvexemphim.DTO.Response;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -12,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ScheduleResponse {
+public class ScheduleResponse implements Serializable {
 
     private int schedule_id;
 
