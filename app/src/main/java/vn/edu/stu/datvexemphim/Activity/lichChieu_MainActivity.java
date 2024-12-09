@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,7 +29,8 @@ import vn.edu.stu.datvexemphim.ViewMatch.TimePickerAdapter;
 public class lichChieu_MainActivity extends AppCompatActivity implements IDatePicker {
     TextView tvNgay,tvThang;
     RecyclerView recyclerDate,recyclerTime;
-    Button btn_tiepTuc, btn_troLai;
+    Button btn_tiepTuc;
+    ImageView Img_btn_troLai;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +44,7 @@ public class lichChieu_MainActivity extends AppCompatActivity implements IDatePi
         tvNgay = findViewById(R.id.tvDay);
         tvThang=findViewById(R.id.tvMonth);
         btn_tiepTuc = findViewById(R.id.frmLichChieu_btn_tiepTuc);
-        btn_troLai = findViewById(R.id.img_LichChieu_troLai);
+        Img_btn_troLai = findViewById(R.id.img_LichChieu_troLai);
     }
 
     private void addEvents() {
@@ -54,7 +56,7 @@ public class lichChieu_MainActivity extends AppCompatActivity implements IDatePi
             startActivity(intent);
         });
         hienthi();
-        btn_troLai.setOnClickListener(v ->{
+        Img_btn_troLai.setOnClickListener(v ->{
             Intent intent = new Intent(this, chiTietPhim_MainActivity.class);
             startActivity(intent);
         });

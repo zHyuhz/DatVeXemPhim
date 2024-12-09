@@ -67,7 +67,7 @@
         android:id="@+id/frmLichChieu_btn_tiepTuc"
         android:layout_width="350dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/custom_button"
         android:text="Tiếp tục"
         android:textColor="#000000"
@@ -75,6 +75,7 @@
         app:backgroundTint="@null"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
         app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
