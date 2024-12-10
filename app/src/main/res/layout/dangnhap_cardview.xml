@@ -46,7 +46,7 @@
                 android:textSize="18sp" />
 
             <EditText
-                android:id="@+id/edt_taiKhoan"
+                android:id="@+id/edt_loginTaiKhoan"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/custom_edittext"
@@ -80,7 +80,7 @@
                 android:textSize="18sp" />
 
             <EditText
-                android:id="@+id/edt_matKhau"
+                android:id="@+id/edt_loginMatKhau"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/custom_edittext"

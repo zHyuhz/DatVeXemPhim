@@ -138,7 +138,7 @@ public class dsPhim_MainActivity extends AppCompatActivity {
                     .setNegativeButton("DONG Y", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            int id = movieResponseList.get(position).getMovie_id();
+                            int id = movieResponseList.get(position).getMovieId();
                             xuLyXoaMovie(id);
                         }
                     })
@@ -162,7 +162,7 @@ public class dsPhim_MainActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body().getCode() == 0) {
                     // Thành công: Xóa phần tử khỏi danh sách
                     for (int i = 0; i < movieResponseList.size(); i++) {
-                        if (movieResponseList.get(i).getMovie_id() == id) {
+                        if (movieResponseList.get(i).getMovieId() == id) {
                             movieResponseList.remove(i);
                             break;
                         }

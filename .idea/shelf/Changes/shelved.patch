@@ -1,0 +1,1689 @@
+Index: app/src/main/java/vn/edu/stu/datvexemphim/Activity/trangChu_MainActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package vn.edu.stu.datvexemphim.Activity;\r\n\r\nimport android.content.Intent;\r\nimport android.graphics.Color;\r\nimport android.os.Bundle;\r\nimport android.util.Log;\r\nimport android.view.MenuItem;\r\nimport android.widget.EditText;\r\nimport android.widget.Toast;\r\n\r\nimport androidx.annotation.NonNull;\r\nimport androidx.appcompat.app.ActionBarDrawerToggle;\r\nimport androidx.appcompat.app.AppCompatActivity;\r\nimport androidx.appcompat.widget.SearchView;\r\nimport androidx.appcompat.widget.Toolbar;\r\nimport androidx.core.view.GravityCompat;\r\nimport androidx.drawerlayout.widget.DrawerLayout;\r\nimport androidx.recyclerview.widget.GridLayoutManager;\r\nimport androidx.recyclerview.widget.LinearLayoutManager;\r\nimport androidx.recyclerview.widget.LinearSnapHelper;\r\nimport androidx.recyclerview.widget.RecyclerView;\r\nimport androidx.recyclerview.widget.SnapHelper;\r\n\r\nimport com.google.android.material.navigation.NavigationView;\r\nimport com.google.gson.Gson;\r\nimport com.google.gson.JsonObject;\r\n\r\nimport java.io.IOException;\r\nimport java.util.ArrayList;\r\nimport java.util.Arrays;\r\nimport java.util.List;\r\n\r\nimport retrofit2.Call;\r\nimport retrofit2.Callback;\r\nimport retrofit2.Response;\r\nimport vn.edu.stu.datvexemphim.ApiService.ApiService;\r\nimport vn.edu.stu.datvexemphim.DTO.Response.ApiResponse;\r\nimport vn.edu.stu.datvexemphim.DTO.Response.MovieResponse;\r\nimport vn.edu.stu.datvexemphim.Models.Movies;\r\nimport vn.edu.stu.datvexemphim.R;\r\nimport vn.edu.stu.datvexemphim.Retrofit.RetrofitSer;\r\nimport vn.edu.stu.datvexemphim.ViewMatch.FilmAdapter;\r\nimport vn.edu.stu.datvexemphim.ViewMatch.ImageAdapter;\r\nimport vn.edu.stu.datvexemphim.ViewMatch.MoviesAdapter;\r\nimport vn.edu.stu.datvexemphim.ViewMatch.ScaleCenterLinearLayoutManager;\r\n\r\npublic class trangChu_MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {\r\n    SearchView searchView;\r\n    EditText searchEditText;\r\n    RecyclerView recyclerViewPhimDangChieu, recyclerViewPhimSapChieu, recyclerViewDichVu;\r\n    ArrayList<Movies> movieListPhimDangChieu;\r\n    ArrayList<Movies> movieListPhimSapChieu;\r\n    MoviesAdapter moviesAdapter;\r\n    ScaleCenterLinearLayoutManager layoutManagerPhimDangChieu, layoutManagerPhimSapChieu;\r\n    DrawerLayout drawerLayout;\r\n    NavigationView navigationView;\r\n    Toolbar toolbar;\r\n    List<MovieResponse> movieResponseList = new ArrayList<>();\r\n    FilmAdapter filmAdapter;\r\n\r\n\r\n    int[] dsPhimDangChieu = {R.drawable.avatar2_dongchaycuanuoc, R.drawable.culikhongbaogiokhoc, R.drawable.doibanhocyeu,\r\n            R.drawable.kny_ss4, R.drawable.kny_ss5, R.drawable.modomdom, R.drawable.ngaytadayeu, R.drawable.ngayxuacomotchuyentinh,\r\n            R.drawable.redone, R.drawable.thanduoc, R.drawable.thenun, R.drawable.venom2, R.drawable.vungdatlinhhon};\r\n\r\n    int[] dsPhimSapChieu = {R.drawable.sc_bluepriod, R.drawable.sc_botubaothu, R.drawable.sc_kinhvanhoa, R.drawable.sc_moana2,\r\n            R.drawable.sc_nangbachtuyet, R.drawable.sc_nguoihoathu, R.drawable.sc_quynhaptrang, R.drawable.sc_thamtukien,\r\n            R.drawable.yourname, R.drawable.infinitywar};\r\n\r\n\r\n    @Override\r\n    protected void onCreate(Bundle savedInstanceState) {\r\n        super.onCreate(savedInstanceState);\r\n        setContentView(R.layout.frm_trangchu_activity);\r\n\r\n        addControls();\r\n        addEvents();\r\n    }\r\n\r\n    private void addControls() {\r\n        searchView = findViewById(R.id.TC_searchView);\r\n        searchEditText = searchView.findViewById(androidx.appcompat.R.id.search_src_text);\r\n\r\n        recyclerViewPhimDangChieu = findViewById(R.id.TC_RCV_dangChieu);\r\n        recyclerViewPhimSapChieu = findViewById(R.id.TC_RCV_SapChieu);\r\n        recyclerViewDichVu = findViewById(R.id.TC_RCV_dichVu);\r\n        movieListPhimSapChieu = new ArrayList<>();\r\n        movieListPhimDangChieu = new ArrayList<>();\r\n        movieResponseList = new ArrayList<>();\r\n        drawerLayout = findViewById(R.id.drawer_layout);\r\n        navigationView = findViewById(R.id.nav_menu_frmTrangChu);\r\n        navigationView.setNavigationItemSelectedListener(menuItem -> {\r\n            int id = menuItem.getItemId();\r\n            if (id == R.id.nav_trangchu) {\r\n                // Xử lý nhấn \"Trang chủ\"\r\n                Toast.makeText(this, \"Trang chủ được chọn\", Toast.LENGTH_SHORT).show();\r\n            } else if (id == R.id.nav_QLPhim) {\r\n                // Xử lý nhấn \"Quản lý phim\"\r\n                Intent intent = new Intent(this,dsPhim_ActivityMain.class);\r\n                startActivity(intent);\r\n                Toast.makeText(this, \"Quản lý phim được chọn\", Toast.LENGTH_SHORT).show();\r\n            } else if (id == R.id.nav_dangxuat) {\r\n                // Xử lý nhấn \"Đăng xuất\"\r\n                Toast.makeText(this, \"Đăng xuất được chọn\", Toast.LENGTH_SHORT).show();\r\n            }\r\n            return true;\r\n\r\n        });\r\n\r\n\r\n\r\n        toolbar = findViewById(R.id.toolbar);\r\n        setSupportActionBar(toolbar);\r\n        getSupportActionBar().setTitle(\"\");\r\n\r\n\r\n        toolbar.setTitle(\"\");\r\n        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(\r\n                this,\r\n                drawerLayout,\r\n                toolbar,\r\n                R.string.open_drawer,\r\n                R.string.close_drawer\r\n        );\r\n        drawerLayout.addDrawerListener(toggle);\r\n        toggle.syncState();\r\n\r\n\r\n        khoiTaoPhim();\r\n        // khoiTaoPhimDangChieu();\r\n        khoiTaoPhimSapChieu();\r\n        khoiTaoDichVu();\r\n\r\n    }\r\n\r\n\r\n    private void addEvents() {\r\n        xulyMauHintTrongSeachView();\r\n        xulyCanChinhPosterPhimDangChieu();\r\n        xulyHieuUngPosterPhimDangChieu();\r\n        xulyCanChinhPosterPhimSapChieu();\r\n        xulyHieuUngPosterPhimSapChieu();\r\n        searchView.clearFocus();\r\n        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {\r\n            @Override\r\n            public boolean onQueryTextSubmit(String query) {\r\n                //xuLyTimKiemPhim(query);\r\n                return false;\r\n            }\r\n\r\n            @Override\r\n            public boolean onQueryTextChange(String newText) {\r\n                 xuLyTimKiemPhim(newText);\r\n                return true;\r\n            }\r\n        });\r\n        filmAdapter.setOnItemClickListener(position -> {\r\n            MovieResponse movieResponse = movieResponseList.get(position);\r\n            Intent intent = new Intent(trangChu_MainActivity.this, chiTietPhim_MainActivity.class);\r\n            if(movieResponse!= null){\r\n                intent.putExtra(\"MOVIE\",movieResponse);\r\n                startActivity(intent);\r\n                Toast.makeText(this, \"Bạn đã chọn phim: \" + movieResponse.getMovieName(), Toast.LENGTH_SHORT).show();\r\n            }\r\n\r\n        });\r\n    }\r\n\r\n    private void xuLyTimKiemPhim(String newText) {\r\n        List<MovieResponse> searchMovieList = new ArrayList<>();\r\n        for (MovieResponse response : movieResponseList) {\r\n            if (response.getMovieName().toLowerCase().contains(newText.toLowerCase())) {\r\n                searchMovieList.add(response);\r\n            }\r\n\r\n        }\r\n        if (searchMovieList.isEmpty()) {\r\n            filmAdapter.setSearchList(searchMovieList);\r\n        } else {\r\n            filmAdapter.setSearchList(searchMovieList);\r\n        }\r\n\r\n    }\r\n\r\n    private void layTatCaPhim() {\r\n        List<MovieResponse> movieResponses = new ArrayList<>();\r\n        ApiService apiService = RetrofitSer.getRetrofitInstance().create(ApiService.class);\r\n        Call<ApiResponse<List<MovieResponse>>> call = apiService.getAllMovie();\r\n        call.enqueue(new Callback<ApiResponse<List<MovieResponse>>>() {\r\n            @Override\r\n            public void onResponse(Call<ApiResponse<List<MovieResponse>>> call, Response<ApiResponse<List<MovieResponse>>> response) {\r\n                if (response.isSuccessful()) {\r\n                    if (response.body() != null) {\r\n                        ApiResponse<List<MovieResponse>> apiResponse = response.body();\r\n                        if (apiResponse.getCode() == 0) {\r\n                            filmAdapter.movieList.clear();\r\n                            movieResponseList.addAll(apiResponse.getResult());\r\n                            filmAdapter.movieList.addAll(apiResponse.getResult());\r\n                            filmAdapter.notifyDataSetChanged();\r\n                            Toast.makeText(trangChu_MainActivity.this, \"Thanh cong 1\", Toast.LENGTH_SHORT).show();\r\n                        } else {\r\n                            Toast.makeText(trangChu_MainActivity.this, \"That bai 1\", Toast.LENGTH_SHORT).show();\r\n                        }\r\n                    } else {\r\n                        Toast.makeText(trangChu_MainActivity.this, \"That bai 2: Do body null\", Toast.LENGTH_SHORT).show();\r\n                    }\r\n                } else {\r\n                    try {\r\n                        // Đọc nội dung lỗi từ response.errorBody()\r\n                        String errorBody = response.errorBody() != null ? response.errorBody().string() : \"Unknown error\";\r\n                        Gson gson = new Gson();\r\n                        JsonObject errorJson = gson.fromJson(errorBody, JsonObject.class);\r\n\r\n                        // Lấy giá trị của \"message\"\r\n                        String errorMessage = errorJson.has(\"message\") ? errorJson.get(\"message\").getAsString() : \"Unknown error\";\r\n                        // Bạn có thể xử lý chuỗi lỗi ở đây và hiển thị thông báo lỗi\r\n                        Toast.makeText(trangChu_MainActivity.this, \"Error: \" + errorMessage, Toast.LENGTH_SHORT).show();\r\n                    } catch (IOException e) {\r\n                        e.printStackTrace();\r\n                        Toast.makeText(trangChu_MainActivity.this, \"Error parsing error body\", Toast.LENGTH_SHORT).show();\r\n                    }\r\n                }\r\n            }\r\n\r\n            @Override\r\n            public void onFailure(Call<ApiResponse<List<MovieResponse>>> call, Throwable t) {\r\n                Log.e(\"API Error\", \"Lỗi: \" + t.getMessage());\r\n            }\r\n        });\r\n    }\r\n\r\n    private void khoiTaoDichVu() {\r\n\r\n        List<Integer> imageList = Arrays.asList(\r\n                R.drawable.ultra_4dx,\r\n                R.drawable.bondx,\r\n                R.drawable.starium,\r\n                R.drawable.sweetbox\r\n        );\r\n\r\n        // Cài đặt Adapter\r\n        ImageAdapter adapter = new ImageAdapter(this, imageList);\r\n        recyclerViewDichVu.setLayoutManager(new GridLayoutManager(this, 2));\r\n        recyclerViewDichVu.setAdapter(adapter);\r\n    }\r\n\r\n    private void khoiTaoPhimSapChieu() {\r\n        phimSapChieu();\r\n        moviesAdapter = new MoviesAdapter(this, R.layout.item_phimsapchieu, movieListPhimSapChieu);\r\n        layoutManagerPhimSapChieu = new ScaleCenterLinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);\r\n\r\n        recyclerViewPhimSapChieu.setLayoutManager(layoutManagerPhimSapChieu);\r\n        recyclerViewPhimSapChieu.setAdapter(moviesAdapter);\r\n    }\r\n\r\n    private void khoiTaoPhim() {\r\n        filmAdapter = new FilmAdapter(this, R.layout.item_phim, new ArrayList<>());\r\n        layoutManagerPhimDangChieu = new ScaleCenterLinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);\r\n\r\n        recyclerViewPhimDangChieu.setLayoutManager(layoutManagerPhimDangChieu);\r\n        recyclerViewPhimDangChieu.setAdapter(filmAdapter);\r\n        layTatCaPhim();\r\n    }\r\n\r\n    private void khoiTaoPhimDangChieu() {\r\n        phimDangChieu();\r\n        moviesAdapter = new MoviesAdapter(this, R.layout.item_phim, movieListPhimDangChieu);\r\n        layoutManagerPhimDangChieu = new ScaleCenterLinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);\r\n\r\n        recyclerViewPhimDangChieu.setLayoutManager(layoutManagerPhimDangChieu);\r\n        recyclerViewPhimDangChieu.setAdapter(moviesAdapter);\r\n    }\r\n\r\n    private void phimDangChieu() {\r\n        String[] tenPhimDangChieu = getResources().getStringArray(R.array.dsPhimDangChieu_ten);\r\n        String[] theloaiPhimDangChieu = getResources().getStringArray(R.array.dsPhimDangChieu_theLoai);\r\n        String length = \"2h15m\";\r\n        for (int i = 0; i < tenPhimDangChieu.length; i++) {\r\n            movieListPhimDangChieu.add(new Movies(tenPhimDangChieu[i], length, theloaiPhimDangChieu[i], dsPhimDangChieu[i]));\r\n        }\r\n    }\r\n\r\n    private void phimSapChieu() {\r\n        String[] tenPhimSapChieu = getResources().getStringArray(R.array.dsPhimSapChieu_ten);\r\n        String[] theloaiPhimSapChieu = getResources().getStringArray(R.array.dsPhimSapChieu_ten);\r\n        String release = \"20.11.3000\";\r\n        for (int i = 0; i < tenPhimSapChieu.length; i++) {\r\n            movieListPhimSapChieu.add(new Movies(tenPhimSapChieu[i], release, theloaiPhimSapChieu[i], dsPhimSapChieu[i]));\r\n        }\r\n    }\r\n\r\n\r\n    private void xulyMauHintTrongSeachView() {\r\n        if (searchEditText != null) {\r\n            searchEditText.setTextColor(Color.WHITE); // Đặt màu chữ\r\n            searchEditText.setHintTextColor(Color.GRAY); // Đặt màu gợi ý\r\n        } else {\r\n            Toast.makeText(this, \"Error SearchView\", Toast.LENGTH_LONG).show();\r\n        }\r\n    }\r\n\r\n    private void xulyHieuUngPosterPhimSapChieu() {\r\n        recyclerViewPhimSapChieu.addOnScrollListener(new RecyclerView.OnScrollListener() {\r\n            @Override\r\n            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {\r\n                super.onScrolled(recyclerView, dx, dy);\r\n                // Cập nhật hiệu ứng thu phóng\r\n                if (layoutManagerPhimSapChieu != null) {\r\n                    layoutManagerPhimSapChieu.scaleChildren(); // Gọi phương thức scaleChildren() từ ScaleCenterLinearLayoutManager\r\n                }\r\n\r\n                // Vòng lặp (Khi cuộn đến cuối, đưa về đầu)\r\n                int visibleItemCount = layoutManagerPhimSapChieu.getChildCount();\r\n                int totalItemCount = layoutManagerPhimSapChieu.getItemCount();\r\n                int firstVisibleItemPosition = layoutManagerPhimSapChieu.findFirstVisibleItemPosition();\r\n\r\n                if (visibleItemCount > 0 && firstVisibleItemPosition == totalItemCount - 1) {\r\n                    // Nếu cuộn đến cuối, đưa về đầu danh sách\r\n                    recyclerView.scrollToPosition(Integer.MAX_VALUE / 2);\r\n                }\r\n            }\r\n        });\r\n    }\r\n\r\n    private void xulyHieuUngPosterPhimDangChieu() {\r\n        recyclerViewPhimDangChieu.addOnScrollListener(new RecyclerView.OnScrollListener() {\r\n            @Override\r\n            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {\r\n                super.onScrolled(recyclerView, dx, dy);\r\n                // Cập nhật hiệu ứng thu phóng\r\n                if (layoutManagerPhimDangChieu != null) {\r\n                    layoutManagerPhimDangChieu.scaleChildren(); // Gọi phương thức scaleChildren() từ ScaleCenterLinearLayoutManager\r\n                }\r\n\r\n                // Vòng lặp (Khi cuộn đến cuối, đưa về đầu)\r\n                int visibleItemCount = layoutManagerPhimDangChieu.getChildCount();\r\n                int totalItemCount = layoutManagerPhimDangChieu.getItemCount();\r\n                int firstVisibleItemPosition = layoutManagerPhimDangChieu.findFirstVisibleItemPosition();\r\n\r\n                if (visibleItemCount > 0 && firstVisibleItemPosition == totalItemCount - 1) {\r\n                    // Nếu cuộn đến cuối, đưa về đầu danh sách\r\n                    recyclerView.scrollToPosition(Integer.MAX_VALUE / 2);\r\n                }\r\n            }\r\n        });\r\n    }\r\n\r\n    private void xulyCanChinhPosterPhimSapChieu() {\r\n        SnapHelper snapHelper = new LinearSnapHelper();\r\n        snapHelper.attachToRecyclerView(recyclerViewPhimSapChieu);\r\n    }\r\n\r\n    private void xulyCanChinhPosterPhimDangChieu() {\r\n        SnapHelper snapHelper = new LinearSnapHelper();\r\n        snapHelper.attachToRecyclerView(recyclerViewPhimDangChieu);\r\n    }\r\n\r\n\r\n    @Override\r\n    public boolean onNavigationItemSelected(@NonNull MenuItem item) {\r\n        return false;\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/vn/edu/stu/datvexemphim/Activity/trangChu_MainActivity.java b/app/src/main/java/vn/edu/stu/datvexemphim/Activity/trangChu_MainActivity.java
+--- a/app/src/main/java/vn/edu/stu/datvexemphim/Activity/trangChu_MainActivity.java	(revision 3d6ae142dae3b7876821f337bb6d849ab1476e45)
++++ b/app/src/main/java/vn/edu/stu/datvexemphim/Activity/trangChu_MainActivity.java	(date 1733210852362)
+@@ -4,8 +4,12 @@
+ import android.graphics.Color;
+ import android.os.Bundle;
+ import android.util.Log;
++import android.view.Menu;
+ import android.view.MenuItem;
++import android.view.View;
+ import android.widget.EditText;
++import android.widget.LinearLayout;
++import android.widget.TextView;
+ import android.widget.Toast;
+ 
+ import androidx.annotation.NonNull;
+@@ -57,7 +61,9 @@
+     Toolbar toolbar;
+     List<MovieResponse> movieResponseList = new ArrayList<>();
+     FilmAdapter filmAdapter;
+-
++    TextView tv_dangChieu;
++    LinearLayout ln_1, ln_2;
++    List<MovieResponse> searchMovieList;
+ 
+     int[] dsPhimDangChieu = {R.drawable.avatar2_dongchaycuanuoc, R.drawable.culikhongbaogiokhoc, R.drawable.doibanhocyeu,
+             R.drawable.kny_ss4, R.drawable.kny_ss5, R.drawable.modomdom, R.drawable.ngaytadayeu, R.drawable.ngayxuacomotchuyentinh,
+@@ -82,6 +88,9 @@
+         searchEditText = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
+ 
+         recyclerViewPhimDangChieu = findViewById(R.id.TC_RCV_dangChieu);
++        ln_1 = findViewById(R.id.ln_1);
++        ln_2 = findViewById(R.id.ln_2);
++        tv_dangChieu = findViewById(R.id.tv_dangChieu);
+         recyclerViewPhimSapChieu = findViewById(R.id.TC_RCV_SapChieu);
+         recyclerViewDichVu = findViewById(R.id.TC_RCV_dichVu);
+         movieListPhimSapChieu = new ArrayList<>();
+@@ -89,26 +98,29 @@
+         movieResponseList = new ArrayList<>();
+         drawerLayout = findViewById(R.id.drawer_layout);
+         navigationView = findViewById(R.id.nav_menu_frmTrangChu);
++        Menu menu = navigationView.getMenu();
++
++        MenuItem menuItems = menu.findItem(R.id.nav_trangchu);
++        menuItems.setVisible(false);
+         navigationView.setNavigationItemSelectedListener(menuItem -> {
+             int id = menuItem.getItemId();
+             if (id == R.id.nav_trangchu) {
+                 // Xử lý nhấn "Trang chủ"
+-                Toast.makeText(this, "Trang chủ được chọn", Toast.LENGTH_SHORT).show();
++//                Toast.makeText(this, "Trang chủ được chọn", Toast.LENGTH_SHORT).show();
+             } else if (id == R.id.nav_QLPhim) {
+                 // Xử lý nhấn "Quản lý phim"
+-                Intent intent = new Intent(this,dsPhim_ActivityMain.class);
++                Intent intent = new Intent(this, dsPhim_ActivityMain.class);
+                 startActivity(intent);
+-                Toast.makeText(this, "Quản lý phim được chọn", Toast.LENGTH_SHORT).show();
++//                Toast.makeText(this, "Quản lý phim được chọn", Toast.LENGTH_SHORT).show();
+             } else if (id == R.id.nav_dangxuat) {
+                 // Xử lý nhấn "Đăng xuất"
+-                Toast.makeText(this, "Đăng xuất được chọn", Toast.LENGTH_SHORT).show();
++//                Toast.makeText(this, "Đăng xuất được chọn", Toast.LENGTH_SHORT).show();
+             }
+             return true;
+ 
+         });
+ 
+ 
+-
+         toolbar = findViewById(R.id.toolbar);
+         setSupportActionBar(toolbar);
+         getSupportActionBar().setTitle("");
+@@ -150,24 +162,38 @@
+ 
+             @Override
+             public boolean onQueryTextChange(String newText) {
+-                 xuLyTimKiemPhim(newText);
++                xuLyTimKiemPhim(newText);
++
+                 return true;
+             }
+         });
+         filmAdapter.setOnItemClickListener(position -> {
+-            MovieResponse movieResponse = movieResponseList.get(position);
++            MovieResponse movieResponse = null;
++
++            if (searchMovieList == null) {
++                movieResponse = movieResponseList.get(position);
++
++            } else {
++                movieResponse = searchMovieList.get(position);
++            }
++
+             Intent intent = new Intent(trangChu_MainActivity.this, chiTietPhim_MainActivity.class);
+-            if(movieResponse!= null){
+-                intent.putExtra("MOVIE",movieResponse);
++            if (movieResponse != null) {
++                intent.putExtra("MOVIE", movieResponse);
+                 startActivity(intent);
+-                Toast.makeText(this, "Bạn đã chọn phim: " + movieResponse.getMovieName(), Toast.LENGTH_SHORT).show();
++//                Toast.makeText(this, "Bạn đã chọn phim: " + movieResponse.getMovieName(), Toast.LENGTH_SHORT).show();
+             }
++
+ 
+         });
+     }
+ 
+     private void xuLyTimKiemPhim(String newText) {
+-        List<MovieResponse> searchMovieList = new ArrayList<>();
++        searchMovieList = new ArrayList<>();
++
++        tv_dangChieu.setText("Tìm Kiếm...");
++        ln_2.setVisibility(View.GONE);
++        ln_1.setVisibility(View.GONE);
+         for (MovieResponse response : movieResponseList) {
+             if (response.getMovieName().toLowerCase().contains(newText.toLowerCase())) {
+                 searchMovieList.add(response);
+@@ -176,10 +202,14 @@
+         }
+         if (searchMovieList.isEmpty()) {
+             filmAdapter.setSearchList(searchMovieList);
++        } else if (searchMovieList.size() == movieResponseList.size()) {
++            filmAdapter.setSearchList(searchMovieList);
++            tv_dangChieu.setText("Đang chiếu");
++            ln_2.setVisibility(View.VISIBLE);
++            ln_1.setVisibility(View.VISIBLE);
+         } else {
+             filmAdapter.setSearchList(searchMovieList);
+         }
+-
+     }
+ 
+     private void layTatCaPhim() {
+@@ -194,15 +224,16 @@
+                         ApiResponse<List<MovieResponse>> apiResponse = response.body();
+                         if (apiResponse.getCode() == 0) {
+                             filmAdapter.movieList.clear();
++                            movieResponseList.clear();
+                             movieResponseList.addAll(apiResponse.getResult());
+                             filmAdapter.movieList.addAll(apiResponse.getResult());
+                             filmAdapter.notifyDataSetChanged();
+-                            Toast.makeText(trangChu_MainActivity.this, "Thanh cong 1", Toast.LENGTH_SHORT).show();
++//                            Toast.makeText(trangChu_MainActivity.this, "Thanh cong 1", Toast.LENGTH_SHORT).show();
+                         } else {
+-                            Toast.makeText(trangChu_MainActivity.this, "That bai 1", Toast.LENGTH_SHORT).show();
++                            Toast.makeText(trangChu_MainActivity.this, "That bai ", Toast.LENGTH_SHORT).show();
+                         }
+                     } else {
+-                        Toast.makeText(trangChu_MainActivity.this, "That bai 2: Do body null", Toast.LENGTH_SHORT).show();
++                        Toast.makeText(trangChu_MainActivity.this, "That bai: Do body null", Toast.LENGTH_SHORT).show();
+                     }
+                 } else {
+                     try {
+@@ -240,7 +271,7 @@
+ 
+         // Cài đặt Adapter
+         ImageAdapter adapter = new ImageAdapter(this, imageList);
+-        recyclerViewDichVu.setLayoutManager(new GridLayoutManager(this, 2));
++        recyclerViewDichVu.setLayoutManager(new GridLayoutManager(this, 1));
+         recyclerViewDichVu.setAdapter(adapter);
+     }
+ 
+@@ -355,6 +386,11 @@
+         snapHelper.attachToRecyclerView(recyclerViewPhimDangChieu);
+     }
+ 
++    @Override
++    protected void onResume() {
++        super.onResume();
++        layTatCaPhim();
++    }
+ 
+     @Override
+     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+Index: app/src/main/java/vn/edu/stu/datvexemphim/Activity/capNhapPhim_Activity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package vn.edu.stu.datvexemphim.Activity;\r\n\r\nimport android.app.DatePickerDialog;\r\nimport android.os.Bundle;\r\nimport android.view.View;\r\nimport android.widget.DatePicker;\r\nimport android.widget.ImageButton;\r\nimport android.widget.TextView;\r\nimport android.widget.Toast;\r\n\r\nimport androidx.appcompat.app.AppCompatActivity;\r\n\r\nimport java.util.Calendar;\r\n\r\nimport vn.edu.stu.datvexemphim.R;\r\n\r\npublic class capNhapPhim_Activity extends AppCompatActivity {\r\n    ImageButton imageButton;\r\n    TextView tv_valueDate;\r\n\r\n    @Override\r\n    protected void onCreate(Bundle savedInstanceState) {\r\n        super.onCreate(savedInstanceState);\r\n        setContentView(R.layout.frm_update_movies);\r\n\r\n        addControls();\r\n        addEvents();\r\n    }\r\n\r\n    private void addControls() {\r\n        imageButton = findViewById(R.id.frmUpdate_btn_calendar);\r\n        tv_valueDate = findViewById(R.id.frmUpdate_tv_ngay);\r\n\r\n    }\r\n\r\n    private void addEvents() {\r\n        xulyImageButton();\r\n    }\r\n\r\n    private void xulyImageButton() {\r\n        imageButton.setOnClickListener(new View.OnClickListener() {\r\n            @Override\r\n            public void onClick(View v) {\r\n                // Lấy ngày hiện tại làm ngày mặc định\r\n                Calendar calendar = Calendar.getInstance();\r\n                int year = calendar.get(Calendar.YEAR);\r\n                int month = calendar.get(Calendar.MONTH);\r\n                int day = calendar.get(Calendar.DAY_OF_MONTH);\r\n\r\n                // Hiển thị DatePickerDialog\r\n                DatePickerDialog datePickerDialog = new DatePickerDialog(\r\n                        capNhapPhim_Activity.this, // Activity hiện tại\r\n                        new DatePickerDialog.OnDateSetListener() {\r\n                            @Override\r\n                            public void onDateSet(DatePicker view, int selectedYear, int selectedMonth, int selectedDay) {\r\n                                // Xử lý ngày được chọn\r\n                                String selectedDate = selectedDay + \"/\" + (selectedMonth + 1) + \"/\" + selectedYear;\r\n                                tv_valueDate.setText(selectedDate);\r\n                                Toast.makeText(capNhapPhim_Activity.this, \"Ngày đã chọn: \" + selectedDate, Toast.LENGTH_SHORT).show();\r\n                            }\r\n                        },\r\n                        year, // Năm mặc định\r\n                        month, // Tháng mặc định\r\n                        day // Ngày mặc định\r\n                );\r\n                datePickerDialog.show();\r\n            }\r\n        });\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/vn/edu/stu/datvexemphim/Activity/capNhapPhim_Activity.java b/app/src/main/java/vn/edu/stu/datvexemphim/Activity/capNhapPhim_Activity.java
+--- a/app/src/main/java/vn/edu/stu/datvexemphim/Activity/capNhapPhim_Activity.java	(revision 3d6ae142dae3b7876821f337bb6d849ab1476e45)
++++ b/app/src/main/java/vn/edu/stu/datvexemphim/Activity/capNhapPhim_Activity.java	(date 1733208991279)
+@@ -1,22 +1,54 @@
+ package vn.edu.stu.datvexemphim.Activity;
+ 
+ import android.app.DatePickerDialog;
++import android.content.Context;
++import android.content.Intent;
++import android.graphics.Bitmap;
++import android.graphics.drawable.BitmapDrawable;
++import android.net.Uri;
+ import android.os.Bundle;
++import android.provider.MediaStore;
+ import android.view.View;
++import android.widget.Button;
+ import android.widget.DatePicker;
++import android.widget.EditText;
+ import android.widget.ImageButton;
++import android.widget.ImageView;
+ import android.widget.TextView;
+ import android.widget.Toast;
+ 
++import androidx.annotation.Nullable;
+ import androidx.appcompat.app.AppCompatActivity;
+ 
++import com.bumptech.glide.Glide;
++
++import java.io.File;
++import java.io.FileOutputStream;
++import java.io.IOException;
+ import java.util.Calendar;
++import java.util.List;
+ 
++import okhttp3.MediaType;
++import okhttp3.MultipartBody;
++import okhttp3.RequestBody;
++import retrofit2.Call;
++import retrofit2.Callback;
++import retrofit2.Response;
++import vn.edu.stu.datvexemphim.ApiService.ApiService;
++import vn.edu.stu.datvexemphim.DTO.Response.ApiResponse;
++import vn.edu.stu.datvexemphim.DTO.Response.MovieResponse;
+ import vn.edu.stu.datvexemphim.R;
++import vn.edu.stu.datvexemphim.Retrofit.RetrofitSer;
++import vn.edu.stu.datvexemphim.ViewMatch.FormatDate;
+ 
+ public class capNhapPhim_Activity extends AppCompatActivity {
++    public static final int PICK_IMAGE_REQUEST = 1;
+     ImageButton imageButton;
+-    TextView tv_valueDate;
++    TextView tv_valueDate, frmUpdate_edt_maPhim;
++    EditText frmUpdate_edt_tenPhim, frmUpdate_edt_theLoaiPhim, frmUpdate_edt_doDaiPhim, frmUpdate_edt_moTaPhim;
++    ImageView frm_update_img;
++    Button btn_chonAnh, btn_them, btn_sua;
++
+ 
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+@@ -30,11 +62,241 @@
+     private void addControls() {
+         imageButton = findViewById(R.id.frmUpdate_btn_calendar);
+         tv_valueDate = findViewById(R.id.frmUpdate_tv_ngay);
++        frmUpdate_edt_maPhim = findViewById(R.id.frmUpdate_edt_maPhim);
++        frmUpdate_edt_theLoaiPhim = findViewById(R.id.frmUpdate_edt_theLoaiPhim);
++        frmUpdate_edt_tenPhim = findViewById(R.id.frmUpdate_edt_tenPhim);
++        frmUpdate_edt_doDaiPhim = findViewById(R.id.frmUpdate_edt_doDaiPhim);
++        frmUpdate_edt_moTaPhim = findViewById(R.id.frmUpdate_edt_moTaPhim);
++        frm_update_img = findViewById(R.id.frm_update_img);
++        btn_chonAnh = findViewById(R.id.btn_chonAnh);
++        btn_them = findViewById(R.id.btn_them);
++        btn_sua = findViewById(R.id.btn_sua);
++        try {
++            if (setDetailsMovie(getResultItent())) {
++                btn_them.setVisibility(View.GONE);
++            } else {
++                btn_sua.setVisibility(View.GONE);
++            }
++        } catch (Exception e) {
++
++        }
+ 
+     }
+ 
+     private void addEvents() {
+         xulyImageButton();
++        btn_them.setOnClickListener(new View.OnClickListener() {
++            @Override
++            public void onClick(View v) {
++                MovieResponse movieResponse = new MovieResponse();
++                movieResponse.setMovieName(frmUpdate_edt_tenPhim.getText().toString());
++                movieResponse.setMovie_description(frmUpdate_edt_moTaPhim.getText().toString());
++                movieResponse.setMovie_genres(frmUpdate_edt_theLoaiPhim.getText().toString());
++                movieResponse.setMovie_release(FormatDate.formatDate(tv_valueDate.getText().toString()));
++                movieResponse.setMovie_length(Integer.parseInt(frmUpdate_edt_doDaiPhim.getText().toString()));
++                Bitmap bitmap = ((BitmapDrawable) frm_update_img.getDrawable()).getBitmap();
++                try {
++                    addMovieWithBitmap(bitmap, movieResponse.getMovieName(), movieResponse.getMovie_description(), movieResponse.getMovie_genres(),
++                            movieResponse.getMovie_release(), movieResponse.getMovie_length());
++                } catch (Exception e) {
++
++                }
++            }
++        });
++        btn_chonAnh.setOnClickListener(new View.OnClickListener() {
++            @Override
++            public void onClick(View v) {
++                chonAnh();
++            }
++        });
++        btn_sua.setOnClickListener(new View.OnClickListener() {
++            @Override
++            public void onClick(View v) {
++                MovieResponse movieResponse = new MovieResponse();
++                movieResponse.setMovie_id(Integer.parseInt(frmUpdate_edt_maPhim.getText().toString()));
++                movieResponse.setMovieName(frmUpdate_edt_tenPhim.getText().toString());
++                movieResponse.setMovie_description(frmUpdate_edt_moTaPhim.getText().toString());
++                movieResponse.setMovie_genres(frmUpdate_edt_theLoaiPhim.getText().toString());
++                movieResponse.setMovie_release(FormatDate.formatDate(tv_valueDate.getText().toString()));
++                int length = frmUpdate_edt_doDaiPhim.getText().toString().length();
++
++                movieResponse.setMovie_length(Integer.parseInt(frmUpdate_edt_doDaiPhim.getText().toString().substring(0,length-1)));
++                Bitmap bitmap = ((BitmapDrawable) frm_update_img.getDrawable()).getBitmap();
++                try {
++                    xuLyCapNhat(
++                            bitmap
++                            , movieResponse.getMovie_id()
++                            , movieResponse.getMovieName()
++                            , movieResponse.getMovie_description()
++                            , movieResponse.getMovie_genres()
++                            , movieResponse.getMovie_release()
++                            , movieResponse.getMovie_length());
++                } catch (Exception e) {
++
++                }
++
++            }
++        });
++
++    }
++
++    private void xuLyCapNhat(Bitmap moviePosterBitmap, int id, String movieName, String movieDes, String movieGenres, String movieRelease, int movieLength) {
++        try {
++            MultipartBody.Part posterPart = prepareFilePartFromBitmap(moviePosterBitmap, this, "moviePoster", movieName.trim());
++
++            ApiService apiService = RetrofitSer.getRetrofitInstance().create(ApiService.class);
++
++            Call<ApiResponse<MovieResponse>> call = apiService.updateMovie(
++                    id,
++                    movieName,
++                    movieDes,
++                    movieGenres,
++                    movieRelease,
++                    movieLength,
++                    posterPart);
++
++            call.enqueue(new Callback<ApiResponse<MovieResponse>>() {
++                @Override
++                public void onResponse(Call<ApiResponse<MovieResponse>> call, Response<ApiResponse<MovieResponse>> response) {
++                    if(response.isSuccessful() && response.body() != null){
++                        if(response.body().getCode() == 0){
++                            Toast.makeText(capNhapPhim_Activity.this,"Sua thanh cong",Toast.LENGTH_SHORT).show();
++                            finish();
++                        }else
++                            Toast.makeText(capNhapPhim_Activity.this,response.body().getMessage(),Toast.LENGTH_SHORT).show();
++                    }else {
++                        Toast.makeText(capNhapPhim_Activity.this,"BODY NULL",Toast.LENGTH_SHORT).show();
++                    }
++                }
++
++                @Override
++                public void onFailure(Call<ApiResponse<MovieResponse>> call, Throwable t) {
++
++                }
++            });
++
++        } catch (IOException e) {
++            e.printStackTrace();
++        }
++
++
++    }
++
++    public void addMovieWithBitmap(Bitmap moviePosterBitmap, String movieName, String movieDes, String movieGenres, String movieRelease, int movieLength) {
++        try {
++            // Chuyển Bitmap thành MultipartBody.Part
++            MultipartBody.Part posterPart = prepareFilePartFromBitmap(moviePosterBitmap, this, "moviePoster", movieName.replaceAll("\\s", ""));
++
++            // Tạo đối tượng Retrofit
++            ApiService apiService = RetrofitSer.getRetrofitInstance().create(ApiService.class);
++
++            // Gọi phương thức API
++            Call<ApiResponse<MovieResponse>> call = apiService.addMovies(movieName, movieDes, movieGenres, movieRelease, movieLength, posterPart);
++
++            // Thực hiện gọi API
++            call.enqueue(new Callback<ApiResponse<MovieResponse>>() {
++                @Override
++                public void onResponse(Call<ApiResponse<MovieResponse>> call, Response<ApiResponse<MovieResponse>> response) {
++                    if (response.isSuccessful()) {
++                        Toast.makeText(capNhapPhim_Activity.this, "Thêm thành công ", Toast.LENGTH_SHORT).show();
++                        finish();
++                    } else {
++                        // Xử lý lỗi
++                    }
++                }
++
++                @Override
++                public void onFailure(Call<ApiResponse<MovieResponse>> call, Throwable t) {
++                    // Xử lý khi không kết nối được với API
++                }
++            });
++        } catch (IOException e) {
++            e.printStackTrace();
++        }
++    }
++
++    //    private void callAPIThemMovie(String movieName, String movieDes, String movieGenres,
++//                                  String movieRelease, int movieLength, Bitmap posterFile) {
++//        // Chuyển Bitmap thành MultipartBody.Part
++//        MultipartBody.Part posterPart = prepareFilePartFromBitmap(posterFile, context, "moviePoster");
++//
++//        ApiService apiService = RetrofitSer.getRetrofitInstance().create(ApiService.class);
++//        Call<ApiResponse<MovieResponse>> call = apiService.addMovies(movieName, movieGenres,movieRelease, movieLength, posterFile);
++//    }
++    public File convertBitmapToFile(Context context, Bitmap bitmap, String fileName) throws IOException {
++        // Tạo một file mới trong bộ nhớ tạm
++        File file = new File(context.getCacheDir(), fileName);
++
++        // Tạo một FileOutputStream để ghi Bitmap vào file
++        FileOutputStream fos = new FileOutputStream(file);
++        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);  // Chọn định dạng JPEG hoặc PNG
++        fos.flush();
++        fos.close();
++
++        return file;
++    }
++
++    public MultipartBody.Part prepareFilePartFromBitmap(Bitmap bitmap, Context context, String partName, String namePoster) throws IOException {
++        // Chuyển Bitmap thành File
++        File file = convertBitmapToFile(context, bitmap, namePoster.replaceAll("\\s", "") + ".jpg");
++
++        // Tạo RequestBody từ file
++        RequestBody requestBody = RequestBody.create(MediaType.parse("image/jpeg"), file);
++
++        // Chuyển thành MultipartBody.Part
++        return MultipartBody.Part.createFormData(partName, file.getName(), requestBody);
++    }
++
++
++    private void chonAnh() {
++        Intent intent = new Intent();
++        intent.setType("image/*");
++        intent.setAction(Intent.ACTION_PICK);
++        startActivityForResult(Intent.createChooser(intent, "Chon Anh"), 1);
++    }
++
++    @Override
++    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
++        super.onActivityResult(requestCode, resultCode, data);
++        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
++            Uri selectedImageUri = data.getData();
++            try {
++                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImageUri);
++                frm_update_img.setImageBitmap(bitmap);
++            } catch (Exception e) {
++
++            }
++        }
++    }
++
++    private MovieResponse getResultItent() {
++        MovieResponse movieResponse = null;
++        Intent intent = getIntent();
++        if (intent != null) {
++            movieResponse = (MovieResponse) intent.getSerializableExtra("MOVIE");
++
++        }
++        return movieResponse;
++    }
++
++    private Boolean setDetailsMovie(MovieResponse movieResponse) {
++        try {
++            frmUpdate_edt_tenPhim.setText(movieResponse.getMovieName());
++            frmUpdate_edt_maPhim.setText(String.valueOf(movieResponse.getMovie_id()));
++            frmUpdate_edt_moTaPhim.setText(movieResponse.getMovie_description());
++            frmUpdate_edt_theLoaiPhim.setText(movieResponse.getMovie_genres());
++            tv_valueDate.setText(FormatDate.fomatDateSQL(movieResponse.getMovie_release()));
++            frmUpdate_edt_doDaiPhim.setText(String.valueOf(movieResponse.getMovie_length()) + "m");
++            String url = RetrofitSer.BASE_URL + movieResponse.getMovie_poster();
++            Glide.with(capNhapPhim_Activity.this)
++                    .load(url)
++                    .placeholder(R.drawable.ic_launcher_background) // Hình ảnh hiển thị trong khi tải
++                    .error(R.drawable.ic_launcher_foreground)             // Hình ảnh hiển thị khi lỗi
++                    .into(frm_update_img);
++            return true;
++        } catch (Exception e) {
++            return false;
++        }
+     }
+ 
+     private void xulyImageButton() {
+@@ -56,7 +318,7 @@
+                                 // Xử lý ngày được chọn
+                                 String selectedDate = selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear;
+                                 tv_valueDate.setText(selectedDate);
+-                                Toast.makeText(capNhapPhim_Activity.this, "Ngày đã chọn: " + selectedDate, Toast.LENGTH_SHORT).show();
++                                // Toast.makeText(capNhapPhim_Activity.this, "Ngày đã chọn: " + selectedDate, Toast.LENGTH_SHORT).show();
+                             }
+                         },
+                         year, // Năm mặc định
+Index: app/src/main/java/vn/edu/stu/datvexemphim/Activity/dsPhim_ActivityMain.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package vn.edu.stu.datvexemphim.Activity;\r\n\r\nimport androidx.appcompat.app.AppCompatActivity;\r\nimport androidx.recyclerview.widget.GridLayoutManager;\r\nimport androidx.recyclerview.widget.LinearLayoutManager;\r\nimport androidx.recyclerview.widget.RecyclerView;\r\n\r\nimport android.os.Bundle;\r\nimport android.util.Log;\r\nimport android.widget.Toast;\r\n\r\nimport com.google.android.material.floatingactionbutton.FloatingActionButton;\r\nimport com.google.gson.Gson;\r\nimport com.google.gson.JsonObject;\r\n\r\nimport java.io.IOException;\r\nimport java.util.ArrayList;\r\nimport java.util.List;\r\n\r\nimport retrofit2.Call;\r\nimport retrofit2.Callback;\r\nimport retrofit2.Response;\r\nimport vn.edu.stu.datvexemphim.ApiService.ApiService;\r\nimport vn.edu.stu.datvexemphim.DTO.Response.ApiResponse;\r\nimport vn.edu.stu.datvexemphim.DTO.Response.MovieResponse;\r\nimport vn.edu.stu.datvexemphim.R;\r\nimport vn.edu.stu.datvexemphim.Retrofit.RetrofitSer;\r\nimport vn.edu.stu.datvexemphim.ViewMatch.FilmAdapter;\r\nimport vn.edu.stu.datvexemphim.ViewMatch.MoviesAdapter;\r\nimport vn.edu.stu.datvexemphim.ViewMatch.ScaleCenterLinearLayoutManager;\r\n\r\npublic class dsPhim_ActivityMain extends AppCompatActivity {\r\n\r\n    RecyclerView recyclerView;\r\n    FloatingActionButton btn_add;\r\n    List<MovieResponse> movieResponseList = new ArrayList<>();\r\n    ScaleCenterLinearLayoutManager layoutManagerPhimDangChieu, layoutManagerPhimSapChieu;\r\n    FilmAdapter filmAdapter;\r\n    @Override\r\n    protected void onCreate(Bundle savedInstanceState) {\r\n        super.onCreate(savedInstanceState);\r\n        setContentView(R.layout.frm_danhsach_phim);\r\n\r\n        addControls();\r\n        addEvents();\r\n    }\r\n\r\n    private void addControls() {\r\n        recyclerView = findViewById(R.id.frmDanhSach_RCV_dsPhim);\r\n        btn_add =findViewById(R.id.frmDanhSach_btn_add);\r\n        khoiTaoPhim();\r\n\r\n\r\n    }\r\n\r\n    private void addEvents() {\r\n    }\r\n    private void layTatCaPhim() {\r\n        List<MovieResponse> movieResponses = new ArrayList<>();\r\n        ApiService apiService = RetrofitSer.getRetrofitInstance().create(ApiService.class);\r\n        Call<ApiResponse<List<MovieResponse>>> call = apiService.getAllMovie();\r\n        call.enqueue(new Callback<ApiResponse<List<MovieResponse>>>() {\r\n            @Override\r\n            public void onResponse(Call<ApiResponse<List<MovieResponse>>> call, Response<ApiResponse<List<MovieResponse>>> response) {\r\n                if (response.isSuccessful()) {\r\n                    if (response.body() != null) {\r\n                        ApiResponse<List<MovieResponse>> apiResponse = response.body();\r\n                        if (apiResponse.getCode() == 0) {\r\n                            filmAdapter.movieList.clear();\r\n                            movieResponseList.addAll(apiResponse.getResult());\r\n                            filmAdapter.movieList.addAll(apiResponse.getResult());\r\n                            filmAdapter.notifyDataSetChanged();\r\n                            Toast.makeText(dsPhim_ActivityMain.this, \"Thanh cong 1\", Toast.LENGTH_SHORT).show();\r\n                        } else {\r\n                            Toast.makeText(dsPhim_ActivityMain.this, \"That bai 1\", Toast.LENGTH_SHORT).show();\r\n                        }\r\n                    } else {\r\n                        Toast.makeText(dsPhim_ActivityMain.this, \"That bai 2: Do body null\", Toast.LENGTH_SHORT).show();\r\n                    }\r\n                } else {\r\n                    try {\r\n                        // Đọc nội dung lỗi từ response.errorBody()\r\n                        String errorBody = response.errorBody() != null ? response.errorBody().string() : \"Unknown error\";\r\n                        Gson gson = new Gson();\r\n                        JsonObject errorJson = gson.fromJson(errorBody, JsonObject.class);\r\n\r\n                        // Lấy giá trị của \"message\"\r\n                        String errorMessage = errorJson.has(\"message\") ? errorJson.get(\"message\").getAsString() : \"Unknown error\";\r\n                        // Bạn có thể xử lý chuỗi lỗi ở đây và hiển thị thông báo lỗi\r\n                        Toast.makeText(dsPhim_ActivityMain.this, \"Error: \" + errorMessage, Toast.LENGTH_SHORT).show();\r\n                    } catch (IOException e) {\r\n                        e.printStackTrace();\r\n                        Toast.makeText(dsPhim_ActivityMain.this, \"Error parsing error body\", Toast.LENGTH_SHORT).show();\r\n                    }\r\n                }\r\n            }\r\n\r\n            @Override\r\n            public void onFailure(Call<ApiResponse<List<MovieResponse>>> call, Throwable t) {\r\n                Log.e(\"API Error\", \"Lỗi: \" + t.getMessage());\r\n            }\r\n        });\r\n    }\r\n    private void khoiTaoPhim() {\r\n        filmAdapter = new FilmAdapter(this, R.layout.item_movie, new ArrayList<>());\r\n\r\n        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));\r\n        recyclerView.setAdapter(filmAdapter);\r\n        layTatCaPhim();\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/vn/edu/stu/datvexemphim/Activity/dsPhim_ActivityMain.java b/app/src/main/java/vn/edu/stu/datvexemphim/Activity/dsPhim_ActivityMain.java
+--- a/app/src/main/java/vn/edu/stu/datvexemphim/Activity/dsPhim_ActivityMain.java	(revision 3d6ae142dae3b7876821f337bb6d849ab1476e45)
++++ b/app/src/main/java/vn/edu/stu/datvexemphim/Activity/dsPhim_ActivityMain.java	(date 1733210789375)
+@@ -1,15 +1,26 @@
+ package vn.edu.stu.datvexemphim.Activity;
+ 
++import androidx.appcompat.app.ActionBarDrawerToggle;
++import androidx.appcompat.app.AlertDialog;
+ import androidx.appcompat.app.AppCompatActivity;
++import androidx.drawerlayout.widget.DrawerLayout;
+ import androidx.recyclerview.widget.GridLayoutManager;
+ import androidx.recyclerview.widget.LinearLayoutManager;
+ import androidx.recyclerview.widget.RecyclerView;
+ 
++import android.content.DialogInterface;
++import android.content.Intent;
+ import android.os.Bundle;
+ import android.util.Log;
++import android.view.Menu;
++import android.view.MenuItem;
++import android.view.View;
+ import android.widget.Toast;
+ 
++import androidx.appcompat.widget.Toolbar;
++
+ import com.google.android.material.floatingactionbutton.FloatingActionButton;
++import com.google.android.material.navigation.NavigationView;
+ import com.google.gson.Gson;
+ import com.google.gson.JsonObject;
+ 
+@@ -27,6 +38,7 @@
+ import vn.edu.stu.datvexemphim.Retrofit.RetrofitSer;
+ import vn.edu.stu.datvexemphim.ViewMatch.FilmAdapter;
+ import vn.edu.stu.datvexemphim.ViewMatch.MoviesAdapter;
++import vn.edu.stu.datvexemphim.ViewMatch.OnItemClickListener;
+ import vn.edu.stu.datvexemphim.ViewMatch.ScaleCenterLinearLayoutManager;
+ 
+ public class dsPhim_ActivityMain extends AppCompatActivity {
+@@ -36,6 +48,10 @@
+     List<MovieResponse> movieResponseList = new ArrayList<>();
+     ScaleCenterLinearLayoutManager layoutManagerPhimDangChieu, layoutManagerPhimSapChieu;
+     FilmAdapter filmAdapter;
++    DrawerLayout drawer_layout;
++    Toolbar toolbarDS;
++    NavigationView navigationView;
++
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
+@@ -47,14 +63,127 @@
+ 
+     private void addControls() {
+         recyclerView = findViewById(R.id.frmDanhSach_RCV_dsPhim);
+-        btn_add =findViewById(R.id.frmDanhSach_btn_add);
++        btn_add = findViewById(R.id.frmDanhSach_btn_add);
++        drawer_layout = findViewById(R.id.drawer_layout);
++        navigationView = findViewById(R.id.nav_menu_frmTrangChu);
++        navigationView = findViewById(R.id.nav_menu_frmTrangChu);
++        Menu menu = navigationView.getMenu();
++
++// Lấy item đang được chọn
++        MenuItem checkedItem = menu.findItem(R.id.nav_QLPhim);
++        checkedItem.setVisible(false);
++        navigationView.setNavigationItemSelectedListener(menuItem -> {
++            int id = menuItem.getItemId();
++            if (id == R.id.nav_trangchu) {
++                Intent intent = new Intent(this, trangChu_MainActivity.class);
++
++                startActivity(intent);
++                finish();
++
++            } else if (id == R.id.nav_QLPhim) {
++
++//                startActivity(intent);
++//                Toast.makeText(this, "Quản lý phim được chọn", Toast.LENGTH_SHORT).show();
++            } else if (id == R.id.nav_dangxuat) {
++
++            }
++            return true;
++
++        });
++
++        toolbarDS = findViewById(R.id.toolbarDS);
++        setSupportActionBar(toolbarDS);
++        getSupportActionBar().setTitle("");
++
++
++        toolbarDS.setTitle("");
++        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
++                this,
++                drawer_layout,
++                toolbarDS,
++                R.string.open_drawer,
++                R.string.close_drawer
++        );
++        drawer_layout.addDrawerListener(toggle);
++        toggle.syncState();
+         khoiTaoPhim();
+ 
+ 
+     }
+ 
+     private void addEvents() {
+-    }
++        filmAdapter.setOnItemClickListener(new OnItemClickListener() {
++            @Override
++            public void onItemClick(int position) {
++                MovieResponse movieResponse = movieResponseList.get(position);
++                Intent intent = new Intent(dsPhim_ActivityMain.this, capNhapPhim_Activity.class);
++                intent.putExtra("MOVIE", movieResponse);
++                startActivity(intent);
++                Toast.makeText(dsPhim_ActivityMain.this, movieResponse.getMovieName(), Toast.LENGTH_SHORT).show();
++            }
++        });
++        btn_add.setOnClickListener(new View.OnClickListener() {
++            @Override
++            public void onClick(View v) {
++                Intent intent = new Intent(dsPhim_ActivityMain.this, capNhapPhim_Activity.class);
++                startActivity(intent);
++
++            }
++        });
++        filmAdapter.setOnItemLongClickListener((view, position) -> {
++            AlertDialog.Builder builder = new AlertDialog.Builder(dsPhim_ActivityMain.this);
++            builder.setTitle("XOA PHIM")
++                    .setMessage("BAN CO MUON XOA HAY KHONG")
++                    .setCancelable(false)
++                    .setNegativeButton("DONG Y", new DialogInterface.OnClickListener() {
++                        @Override
++                        public void onClick(DialogInterface dialog, int which) {
++                            int id = movieResponseList.get(position).getMovie_id();
++                            xuLyXoaMovie(id);
++                        }
++                    })
++                    .setPositiveButton("TU CHOI", new DialogInterface.OnClickListener() {
++                        @Override
++                        public void onClick(DialogInterface dialog, int which) {
++                            Toast.makeText(dsPhim_ActivityMain.this, String.valueOf(which), Toast.LENGTH_SHORT).show();
++                        }
++                    });
++            AlertDialog alertDialog = builder.create();
++            alertDialog.show();
++        });
++    }
++
++    private void xuLyXoaMovie(int id) {
++        ApiService apiService = RetrofitSer.getRetrofitInstance().create(ApiService.class);
++        Call<ApiResponse<String>> call = apiService.deleteMovie(id);
++        call.enqueue(new Callback<ApiResponse<String>>() {
++            @Override
++            public void onResponse(Call<ApiResponse<String>> call, Response<ApiResponse<String>> response) {
++                if (response.isSuccessful() && response.body().getCode() == 0) {
++                    // Thành công: Xóa phần tử khỏi danh sách
++                    for (int i = 0; i < movieResponseList.size(); i++) {
++                        if (movieResponseList.get(i).getMovie_id() == id) {
++                            movieResponseList.remove(i);
++                            break;
++                        }
++                    }
++                    filmAdapter.movieList.clear();
++                    filmAdapter.movieList.addAll(movieResponseList);
++                    filmAdapter.notifyDataSetChanged();
++                    Toast.makeText(dsPhim_ActivityMain.this, "Xóa thành công", Toast.LENGTH_SHORT).show();
++                } else {
++                    Toast.makeText(dsPhim_ActivityMain.this, "Xóa thất bại", Toast.LENGTH_SHORT).show();
++                }
++            }
++
++            @Override
++            public void onFailure(Call<ApiResponse<String>> call, Throwable t) {
++                Log.e("API Error", "Lỗi: " + t.getMessage());
++                Toast.makeText(dsPhim_ActivityMain.this, "Xay ra loi ", Toast.LENGTH_SHORT).show();
++            }
++        });
++    }
++
+     private void layTatCaPhim() {
+         List<MovieResponse> movieResponses = new ArrayList<>();
+         ApiService apiService = RetrofitSer.getRetrofitInstance().create(ApiService.class);
+@@ -67,15 +196,15 @@
+                         ApiResponse<List<MovieResponse>> apiResponse = response.body();
+                         if (apiResponse.getCode() == 0) {
+                             filmAdapter.movieList.clear();
+-                            movieResponseList.addAll(apiResponse.getResult());
++                            movieResponseList = apiResponse.getResult();
+                             filmAdapter.movieList.addAll(apiResponse.getResult());
+                             filmAdapter.notifyDataSetChanged();
+-                            Toast.makeText(dsPhim_ActivityMain.this, "Thanh cong 1", Toast.LENGTH_SHORT).show();
++                            //  Toast.makeText(dsPhim_ActivityMain.this, "Thanh cong 1", Toast.LENGTH_SHORT).show();
+                         } else {
+-                            Toast.makeText(dsPhim_ActivityMain.this, "That bai 1", Toast.LENGTH_SHORT).show();
++                            Toast.makeText(dsPhim_ActivityMain.this, "That bai", Toast.LENGTH_SHORT).show();
+                         }
+                     } else {
+-                        Toast.makeText(dsPhim_ActivityMain.this, "That bai 2: Do body null", Toast.LENGTH_SHORT).show();
++                        Toast.makeText(dsPhim_ActivityMain.this, "That bai: Do body null", Toast.LENGTH_SHORT).show();
+                     }
+                 } else {
+                     try {
+@@ -101,11 +230,17 @@
+             }
+         });
+     }
++
+     private void khoiTaoPhim() {
+         filmAdapter = new FilmAdapter(this, R.layout.item_movie, new ArrayList<>());
+-
+         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+         recyclerView.setAdapter(filmAdapter);
+         layTatCaPhim();
+     }
++
++    @Override
++    protected void onResume() {
++        super.onResume();
++        layTatCaPhim();
++    }
+ }
+\ No newline at end of file
+Index: app/src/main/res/layout/frm_trangchu_activity.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n\r\n<androidx.drawerlayout.widget.DrawerLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\r\n    xmlns:tools=\"http://schemas.android.com/tools\"\r\n    android:id=\"@+id/drawer_layout\"\r\n    android:layout_width=\"match_parent\"\r\n    android:layout_height=\"match_parent\"\r\n    android:fitsSystemWindows=\"true\"\r\n    tools:context=\".Activity.trangChu_MainActivity\"\r\n    >\r\n\r\n    <androidx.constraintlayout.widget.ConstraintLayout\r\n        android:layout_width=\"match_parent\"\r\n        android:layout_height=\"match_parent\"\r\n        android:background=\"#000000\"\r\n        tools:context=\".Activity.trangChu_MainActivity\">\r\n\r\n        <ScrollView\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"match_parent\"\r\n            android:layout_margin=\"10dp\"\r\n            app:layout_constraintEnd_toEndOf=\"parent\"\r\n            app:layout_constraintStart_toStartOf=\"parent\"\r\n            app:layout_constraintTop_toTopOf=\"parent\">\r\n\r\n            <LinearLayout\r\n                android:layout_width=\"match_parent\"\r\n                android:layout_height=\"0dp\"\r\n                android:orientation=\"vertical\">\r\n\r\n                <LinearLayout\r\n                    android:id=\"@+id/ln_TC_viewTieuDe\"\r\n                    android:layout_width=\"match_parent\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:orientation=\"vertical\">\r\n\r\n                    <LinearLayout\r\n                        android:layout_width=\"match_parent\"\r\n                        android:layout_height=\"wrap_content\"\r\n                        android:orientation=\"horizontal\">\r\n\r\n                        <TextView\r\n                            android:id=\"@+id/tv_TC_chao\"\r\n                            android:layout_width=\"wrap_content\"\r\n                            android:layout_height=\"wrap_content\"\r\n                            android:fontFamily=\"@font/josefin_sans_italic\"\r\n                            android:text=\"Chào, \"\r\n                            android:textColor=\"#FFFFFF\"\r\n                            android:textSize=\"30sp\"\r\n                            android:textStyle=\"bold\" />\r\n\r\n                        <TextView\r\n                            android:id=\"@+id/tv_TC_ten\"\r\n                            android:layout_width=\"wrap_content\"\r\n                            android:layout_height=\"wrap_content\"\r\n                            android:fontFamily=\"@font/josefin_sans_italic\"\r\n                            android:text=\"Khoa\"\r\n                            android:textColor=\"#FFFFFF\"\r\n                            android:textSize=\"30sp\"\r\n                            android:textStyle=\"bold\" />\r\n\r\n                        <LinearLayout\r\n                            android:layout_width=\"match_parent\"\r\n                            android:layout_height=\"wrap_content\"\r\n                            android:gravity=\"right\">\r\n                            <!-- Thêm Toolbar vào đây -->\r\n                            <androidx.appcompat.widget.Toolbar\r\n                                android:id=\"@+id/toolbar\"\r\n                                android:layout_width=\"wrap_content\"\r\n                                android:layout_height=\"wrap_content\"\r\n                                android:layout_gravity=\"end\"\r\n                                android:background=\"#000000\"\r\n                                android:elevation=\"4dp\"\r\n                                android:titleTextColor=\"#FFFFFF\" />\r\n                        </LinearLayout>\r\n\r\n\r\n                    </LinearLayout>\r\n\r\n\r\n\r\n                    <androidx.appcompat.widget.SearchView\r\n                        android:id=\"@+id/TC_searchView\"\r\n                        android:layout_width=\"match_parent\"\r\n                        android:layout_height=\"wrap_content\"\r\n                        android:layout_marginTop=\"10dp\"\r\n                        android:background=\"@drawable/custom_searchview\"\r\n                        app:iconifiedByDefault=\"false\"\r\n                        app:searchIcon=\"@drawable/icons8_search_32\" />\r\n\r\n                </LinearLayout>\r\n\r\n                <LinearLayout\r\n                    android:layout_width=\"match_parent\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:layout_marginTop=\"20dp\"\r\n                    android:orientation=\"vertical\">\r\n\r\n                    <LinearLayout\r\n                        android:layout_width=\"match_parent\"\r\n                        android:layout_height=\"wrap_content\"\r\n                        android:orientation=\"horizontal\">\r\n\r\n                        <TextView\r\n                            android:layout_width=\"wrap_content\"\r\n                            android:layout_height=\"wrap_content\"\r\n                            android:fontFamily=\"@font/josefin_sans_italic\"\r\n                            android:text=\"Đang chiếu\"\r\n                            android:textColor=\"#FFFFFF\"\r\n                            android:textSize=\"30sp\"\r\n                            android:textStyle=\"bold\" />\r\n\r\n                        <TextView\r\n                            android:id=\"@+id/TC_tv_xemtatCaPhimDangChieu\"\r\n                            android:layout_width=\"wrap_content\"\r\n                            android:layout_height=\"wrap_content\"\r\n                            android:layout_marginStart=\"130dp\"\r\n                            android:text=\"Xem thêm\"\r\n\r\n                            android:textColor=\"#FCC434\" />\r\n                    </LinearLayout>\r\n\r\n\r\n                    <androidx.recyclerview.widget.RecyclerView\r\n                        android:id=\"@+id/TC_RCV_dangChieu\"\r\n                        android:layout_width=\"match_parent\"\r\n                        android:layout_height=\"wrap_content\"\r\n                        android:layout_marginTop=\"15dp\" />\r\n\r\n                    <FrameLayout\r\n                        android:id=\"@+id/container\"\r\n                        android:layout_width=\"match_parent\"\r\n                        android:layout_height=\"match_parent\" />\r\n                </LinearLayout>\r\n\r\n                <LinearLayout\r\n                    android:layout_width=\"match_parent\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:layout_marginTop=\"20dp\"\r\n                    android:orientation=\"vertical\">\r\n\r\n                    <LinearLayout\r\n                        android:layout_width=\"match_parent\"\r\n                        android:layout_height=\"wrap_content\"\r\n                        android:orientation=\"horizontal\">\r\n\r\n                        <TextView\r\n                            android:layout_width=\"wrap_content\"\r\n                            android:layout_height=\"wrap_content\"\r\n                            android:fontFamily=\"@font/josefin_sans_italic\"\r\n                            android:text=\"Sắp chiếu\"\r\n                            android:textColor=\"#FFFFFF\"\r\n                            android:textSize=\"30sp\"\r\n                            android:textStyle=\"bold\" />\r\n\r\n                        <TextView\r\n                            android:id=\"@+id/TC_tv_xemtatCaPhimSapChieu\"\r\n                            android:layout_width=\"wrap_content\"\r\n                            android:layout_height=\"wrap_content\"\r\n                            android:layout_marginStart=\"149dp\"\r\n                            android:text=\"Xem thêm\"\r\n                            android:textColor=\"#FCC434\" />\r\n                    </LinearLayout>\r\n\r\n\r\n                    <androidx.recyclerview.widget.RecyclerView\r\n                        android:id=\"@+id/TC_RCV_SapChieu\"\r\n                        android:layout_width=\"match_parent\"\r\n                        android:layout_height=\"wrap_content\"\r\n                        android:layout_marginTop=\"15dp\" />\r\n                </LinearLayout>\r\n\r\n\r\n                <LinearLayout\r\n                    android:layout_width=\"match_parent\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:layout_marginTop=\"20dp\"\r\n                    android:orientation=\"vertical\">\r\n\r\n                    <TextView\r\n                        android:layout_width=\"wrap_content\"\r\n                        android:layout_height=\"wrap_content\"\r\n                        android:fontFamily=\"@font/josefin_sans_italic\"\r\n                        android:text=\"Dịch vụ\"\r\n                        android:textColor=\"#FFFFFF\"\r\n                        android:textSize=\"30sp\"\r\n                        android:textStyle=\"bold\" />\r\n\r\n                    <androidx.recyclerview.widget.RecyclerView\r\n                        android:id=\"@+id/TC_RCV_dichVu\"\r\n                        android:layout_width=\"match_parent\"\r\n                        android:layout_height=\"wrap_content\"\r\n                        android:layout_marginTop=\"15dp\" />\r\n\r\n                </LinearLayout>\r\n            </LinearLayout>\r\n        </ScrollView>\r\n    </androidx.constraintlayout.widget.ConstraintLayout>\r\n\r\n    <LinearLayout\r\n        android:layout_width=\"match_parent\"\r\n        android:layout_height=\"match_parent\"\r\n        android:orientation=\"vertical\">\r\n\r\n    </LinearLayout>\r\n\r\n\r\n    <com.google.android.material.navigation.NavigationView\r\n        android:id=\"@+id/nav_menu_frmTrangChu\"\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"match_parent\"\r\n        android:layout_gravity=\"start\"\r\n        android:layout_marginTop=\"40dp\"\r\n        android:backgroundTint=\"#575757\"\r\n        app:headerLayout=\"@layout/custom_navi_header\"\r\n        app:itemIconTint=\"@color/white\"\r\n        app:itemTextColor=\"#ffffff\"\r\n        app:menu=\"@menu/menu_navigation\" />\r\n</androidx.drawerlayout.widget.DrawerLayout>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/frm_trangchu_activity.xml b/app/src/main/res/layout/frm_trangchu_activity.xml
+--- a/app/src/main/res/layout/frm_trangchu_activity.xml	(revision 3d6ae142dae3b7876821f337bb6d849ab1476e45)
++++ b/app/src/main/res/layout/frm_trangchu_activity.xml	(date 1733209302744)
+@@ -1,6 +1,7 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ 
+-<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
++<androidx.drawerlayout.widget.DrawerLayout
++    xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:app="http://schemas.android.com/apk/res-auto"
+     xmlns:tools="http://schemas.android.com/tools"
+     android:id="@+id/drawer_layout"
+@@ -103,6 +104,7 @@
+                         android:orientation="horizontal">
+ 
+                         <TextView
++                            android:id="@+id/tv_dangChieu"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:fontFamily="@font/josefin_sans_italic"
+@@ -135,12 +137,14 @@
+                 </LinearLayout>
+ 
+                 <LinearLayout
++                    android:id="@+id/ln_1"
+                     android:layout_width="match_parent"
+                     android:layout_height="wrap_content"
+                     android:layout_marginTop="20dp"
+                     android:orientation="vertical">
+ 
+                     <LinearLayout
++
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:orientation="horizontal">
+@@ -173,6 +177,7 @@
+ 
+ 
+                 <LinearLayout
++                    android:id="@+id/ln_2"
+                     android:layout_width="match_parent"
+                     android:layout_height="wrap_content"
+                     android:layout_marginTop="20dp"
+Index: app/src/main/res/layout/frm_danhsach_phim.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<androidx.constraintlayout.widget.ConstraintLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\r\n    android:layout_width=\"match_parent\"\r\n    android:layout_height=\"match_parent\"\r\n    xmlns:tools=\"http://schemas.android.com/tools\"\r\n    android:background=\"#000000\"\r\n    tools:context=\".Activity.dsPhim_ActivityMain\">\r\n\r\n    <LinearLayout\r\n        android:id=\"@+id/ln_title\"\r\n        android:layout_width=\"match_parent\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:orientation=\"vertical\"\r\n        app:layout_constraintEnd_toEndOf=\"parent\"\r\n        app:layout_constraintStart_toStartOf=\"parent\"\r\n        app:layout_constraintTop_toTopOf=\"parent\">\r\n\r\n        <TextView\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"60dp\"\r\n            android:background=\"@drawable/custom_button\"\r\n            android:gravity=\"center\"\r\n            android:text=\"Danh sách phim\"\r\n            android:textColor=\"#000000\"\r\n            android:textSize=\"30sp\"\r\n            android:textStyle=\"bold\" />\r\n\r\n\r\n    </LinearLayout>\r\n    <LinearLayout\r\n        android:layout_marginTop=\"20dp\"\r\n        android:layout_width=\"match_parent\"\r\n        android:layout_height=\"0dp\"\r\n        app:layout_constraintEnd_toEndOf=\"parent\"\r\n        app:layout_constraintStart_toStartOf=\"parent\"\r\n        app:layout_constraintBottom_toBottomOf=\"parent\"\r\n        app:layout_constraintTop_toBottomOf=\"@+id/ln_title\">\r\n\r\n        <androidx.recyclerview.widget.RecyclerView\r\n            android:id=\"@+id/frmDanhSach_RCV_dsPhim\"\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"wrap_content\"/>\r\n    </LinearLayout>\r\n    <com.google.android.material.floatingactionbutton.FloatingActionButton\r\n        android:id=\"@+id/frmDanhSach_btn_add\"\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"wrap_content\"\r\n        app:layout_constraintBottom_toBottomOf=\"parent\"\r\n        app:layout_constraintEnd_toEndOf=\"parent\"\r\n        android:layout_margin=\"30dp\"\r\n        android:backgroundTint=\"#FCC434\"\r\n        android:src=\"@drawable/add\"\r\n        />\r\n\r\n</androidx.constraintlayout.widget.ConstraintLayout>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/frm_danhsach_phim.xml b/app/src/main/res/layout/frm_danhsach_phim.xml
+--- a/app/src/main/res/layout/frm_danhsach_phim.xml	(revision 3d6ae142dae3b7876821f337bb6d849ab1476e45)
++++ b/app/src/main/res/layout/frm_danhsach_phim.xml	(date 1733210132967)
+@@ -1,56 +1,111 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
++<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:app="http://schemas.android.com/apk/res-auto"
++    xmlns:tools="http://schemas.android.com/tools"
++    android:id="@+id/drawer_layout"
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
+-    xmlns:tools="http://schemas.android.com/tools"
+     android:background="#000000"
++    android:fitsSystemWindows="true"
+     tools:context=".Activity.dsPhim_ActivityMain">
+ 
+-    <LinearLayout
+-        android:id="@+id/ln_title"
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:orientation="vertical"
+-        app:layout_constraintEnd_toEndOf="parent"
+-        app:layout_constraintStart_toStartOf="parent"
+-        app:layout_constraintTop_toTopOf="parent">
++    <androidx.constraintlayout.widget.ConstraintLayout
++        android:layout_width="match_parent"
++        android:layout_height="match_parent"
++        tools:context=".Activity.dsPhim_ActivityMain">
++        <LinearLayout
++            android:id="@+id/ln_title"
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:orientation="horizontal"
++            android:layout_marginStart="10dp"
++            app:layout_constraintTop_toTopOf="parent"
++            app:layout_constraintStart_toStartOf="parent"
++            app:layout_constraintEnd_toEndOf="parent">
+ 
+-        <TextView
+-            android:layout_width="match_parent"
+-            android:layout_height="60dp"
+-            android:background="@drawable/custom_button"
+-            android:gravity="center"
+-            android:text="Danh sách phim"
+-            android:textColor="#000000"
+-            android:textSize="30sp"
+-            android:textStyle="bold" />
++            <!-- Thêm Toolbar vào đây -->
++            <androidx.appcompat.widget.Toolbar
++                android:id="@+id/toolbarDS"
++                android:layout_width="wrap_content"
++                android:layout_height="wrap_content"
++                android:layout_gravity="end"
++                android:background="#000000"
++                android:elevation="4dp"
++                android:titleTextColor="#FFFFFF" />
++            <TextView
++                android:layout_gravity="center"
++                android:id="@+id/tv_TC_chao"
++                android:layout_width="wrap_content"
++                android:layout_height="wrap_content"
++                android:fontFamily="@font/josefin_sans_italic"
++                android:text="ADMIN "
++                android:textColor="#FFFFFF"
++                android:textSize="30sp"
++                android:textStyle="bold" />
+ 
+ 
+-    </LinearLayout>
+-    <LinearLayout
+-        android:layout_marginTop="20dp"
+-        android:layout_width="match_parent"
+-        android:layout_height="0dp"
+-        app:layout_constraintEnd_toEndOf="parent"
+-        app:layout_constraintStart_toStartOf="parent"
+-        app:layout_constraintBottom_toBottomOf="parent"
+-        app:layout_constraintTop_toBottomOf="@+id/ln_title">
++
++
++
++        </LinearLayout>
++
++<!--        <LinearLayout-->
++<!--            android:id="@+id/ln_title"-->
++<!--            android:layout_width="match_parent"-->
++<!--            android:layout_height="wrap_content"-->
++<!--            android:orientation="vertical"-->
++<!--            app:layout_constraintEnd_toEndOf="parent"-->
++<!--            app:layout_constraintStart_toStartOf="parent"-->
++<!--            app:layout_constraintTop_toTopOf="parent">-->
++
++<!--            &lt;!&ndash;        <TextView&ndash;&gt;-->
++<!--            &lt;!&ndash;            android:layout_width="match_parent"&ndash;&gt;-->
++<!--            &lt;!&ndash;            android:layout_height="60dp"&ndash;&gt;-->
++<!--            &lt;!&ndash;            android:background="@drawable/custom_button"&ndash;&gt;-->
++<!--            &lt;!&ndash;            android:gravity="center"&ndash;&gt;-->
++<!--            &lt;!&ndash;            android:text="Danh sách phim"&ndash;&gt;-->
++<!--            &lt;!&ndash;            android:textColor="#000000"&ndash;&gt;-->
++<!--            &lt;!&ndash;            android:textSize="30sp"&ndash;&gt;-->
++<!--            &lt;!&ndash;            android:textStyle="bold" />&ndash;&gt;-->
++
++
++<!--        </LinearLayout>-->
++
++        <LinearLayout
++            android:layout_width="match_parent"
++            android:layout_height="0dp"
++            android:layout_marginTop="20dp"
++            app:layout_constraintBottom_toBottomOf="parent"
++            app:layout_constraintEnd_toEndOf="parent"
++            app:layout_constraintStart_toStartOf="parent"
++            app:layout_constraintTop_toBottomOf="@+id/ln_title">
+ 
+-        <androidx.recyclerview.widget.RecyclerView
+-            android:id="@+id/frmDanhSach_RCV_dsPhim"
+-            android:layout_width="match_parent"
+-            android:layout_height="wrap_content"/>
+-    </LinearLayout>
+-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+-        android:id="@+id/frmDanhSach_btn_add"
+-        android:layout_width="wrap_content"
+-        android:layout_height="wrap_content"
+-        app:layout_constraintBottom_toBottomOf="parent"
+-        app:layout_constraintEnd_toEndOf="parent"
+-        android:layout_margin="30dp"
+-        android:backgroundTint="#FCC434"
+-        android:src="@drawable/add"
+-        />
++            <androidx.recyclerview.widget.RecyclerView
++                android:id="@+id/frmDanhSach_RCV_dsPhim"
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content" />
++        </LinearLayout>
++
++        <com.google.android.material.floatingactionbutton.FloatingActionButton
++            android:id="@+id/frmDanhSach_btn_add"
++            android:layout_width="wrap_content"
++            android:layout_height="wrap_content"
++            android:layout_margin="30dp"
++            android:backgroundTint="#FCC434"
++            android:src="@drawable/add"
++            app:layout_constraintBottom_toBottomOf="parent"
++            app:layout_constraintEnd_toEndOf="parent" />
++    </androidx.constraintlayout.widget.ConstraintLayout>
+ 
+-</androidx.constraintlayout.widget.ConstraintLayout>
+\ No newline at end of file
++    <com.google.android.material.navigation.NavigationView
++        android:id="@+id/nav_menu_frmTrangChu"
++        android:layout_width="wrap_content"
++        android:layout_height="match_parent"
++        android:layout_gravity="start"
++        android:layout_marginTop="40dp"
++        android:backgroundTint="#575757"
++        app:headerLayout="@layout/custom_navi_header"
++        app:itemIconTint="@color/white"
++        app:itemTextColor="#ffffff"
++        app:menu="@menu/menu_navigation" />
++</androidx.drawerlayout.widget.DrawerLayout>
+\ No newline at end of file
+Index: app/src/main/java/vn/edu/stu/datvexemphim/Activity/chiTietPhim_MainActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package vn.edu.stu.datvexemphim.Activity;\r\n\r\nimport androidx.appcompat.app.AppCompatActivity;\r\n\r\nimport android.content.Intent;\r\nimport android.os.Bundle;\r\nimport android.view.View;\r\nimport android.widget.ImageView;\r\nimport android.widget.TextView;\r\nimport android.widget.Toast;\r\n\r\nimport com.bumptech.glide.Glide;\r\n\r\nimport vn.edu.stu.datvexemphim.DTO.Response.MovieResponse;\r\nimport vn.edu.stu.datvexemphim.R;\r\nimport vn.edu.stu.datvexemphim.Retrofit.RetrofitSer;\r\n\r\npublic class chiTietPhim_MainActivity extends AppCompatActivity {\r\n    TextView tv_theLoai, tv_moTa, tv_Item_movieName, tv_Item_length, tv_Item_date;\r\n    ImageView img_posterMovie, img_ChiTiet_troLai;\r\n    View include_chitietphim;\r\n\r\n    @Override\r\n    protected void onCreate(Bundle savedInstanceState) {\r\n        super.onCreate(savedInstanceState);\r\n        setContentView(R.layout.frm_chitietphim_activity);\r\n\r\n        addControls();\r\n        addEvents();\r\n    }\r\n\r\n    private void addControls() {\r\n        //setContentView(R.layout.item_chitietphim);\r\n        tv_theLoai = findViewById(R.id.tv_theLoai);\r\n        tv_moTa = findViewById(R.id.tv_moTa);\r\n        img_posterMovie = findViewById(R.id.img_posterMovie);\r\n        img_ChiTiet_troLai = findViewById(R.id.img_ChiTiet_troLai);\r\n\r\n        include_chitietphim = findViewById(R.id.include_chitietphim);\r\n\r\n        tv_Item_movieName = include_chitietphim.findViewById(R.id.tv_Item_movieName);\r\n        tv_Item_length = include_chitietphim.findViewById(R.id.tv_Item_length);\r\n        tv_Item_date = include_chitietphim.findViewById(R.id.tv_Item_date);\r\n\r\n         setDetailsMovie(getResultItent());\r\n\r\n       // MovieResponse movieResponse = getResultItent();\r\n//        if (movieResponse != null){\r\n//            Toast.makeText(this, \"Nhận được: \", Toast.LENGTH_SHORT).show();\r\n//        }else  Toast.makeText(this, \" eo Nhận được: \", Toast.LENGTH_SHORT).show();\r\n\r\n\r\n    }\r\n\r\n    private void addEvents() {\r\n        img_ChiTiet_troLai.setOnClickListener(new View.OnClickListener() {\r\n            @Override\r\n            public void onClick(View v) {\r\n                finish();\r\n            }\r\n        });\r\n    }\r\n\r\n    private MovieResponse getResultItent() {\r\n        MovieResponse movieResponse = null;\r\n        Intent intent = getIntent();\r\n        if (intent != null) {\r\n            movieResponse = (MovieResponse) intent.getSerializableExtra(\"MOVIE\");\r\n\r\n        }\r\n        return movieResponse;\r\n    }\r\n\r\n    private void setDetailsMovie(MovieResponse movieResponse) {\r\n        tv_Item_movieName.setText(movieResponse.getMovieName());\r\n        tv_moTa.setText(movieResponse.getMovie_description());\r\n        tv_theLoai.setText(movieResponse.getMovie_genres());\r\n        tv_Item_date.setText(movieResponse.getMovie_release());\r\n        tv_Item_length.setText(movieResponse.getMovie_length() + \"m\");\r\n        String url = RetrofitSer.BASE_URL + movieResponse.getMovie_poster();\r\n        Glide.with(chiTietPhim_MainActivity.this)\r\n                .load(url)\r\n                .placeholder(R.drawable.ic_launcher_background) // Hình ảnh hiển thị trong khi tải\r\n                .error(R.drawable.ic_launcher_foreground)             // Hình ảnh hiển thị khi lỗi\r\n                .into(img_posterMovie);\r\n\r\n\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/vn/edu/stu/datvexemphim/Activity/chiTietPhim_MainActivity.java b/app/src/main/java/vn/edu/stu/datvexemphim/Activity/chiTietPhim_MainActivity.java
+--- a/app/src/main/java/vn/edu/stu/datvexemphim/Activity/chiTietPhim_MainActivity.java	(revision 3d6ae142dae3b7876821f337bb6d849ab1476e45)
++++ b/app/src/main/java/vn/edu/stu/datvexemphim/Activity/chiTietPhim_MainActivity.java	(date 1733194884614)
+@@ -14,6 +14,7 @@
+ import vn.edu.stu.datvexemphim.DTO.Response.MovieResponse;
+ import vn.edu.stu.datvexemphim.R;
+ import vn.edu.stu.datvexemphim.Retrofit.RetrofitSer;
++import vn.edu.stu.datvexemphim.ViewMatch.FormatDate;
+ 
+ public class chiTietPhim_MainActivity extends AppCompatActivity {
+     TextView tv_theLoai, tv_moTa, tv_Item_movieName, tv_Item_length, tv_Item_date;
+@@ -75,7 +76,7 @@
+         tv_Item_movieName.setText(movieResponse.getMovieName());
+         tv_moTa.setText(movieResponse.getMovie_description());
+         tv_theLoai.setText(movieResponse.getMovie_genres());
+-        tv_Item_date.setText(movieResponse.getMovie_release());
++        tv_Item_date.setText(FormatDate.fomatDateSQL(movieResponse.getMovie_release()));
+         tv_Item_length.setText(movieResponse.getMovie_length() + "m");
+         String url = RetrofitSer.BASE_URL + movieResponse.getMovie_poster();
+         Glide.with(chiTietPhim_MainActivity.this)
+Index: app/src/main/java/vn/edu/stu/datvexemphim/Retrofit/RetrofitSer.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package vn.edu.stu.datvexemphim.Retrofit;\r\n\r\nimport retrofit2.Retrofit;\r\nimport retrofit2.converter.gson.GsonConverterFactory;\r\n\r\npublic class RetrofitSer {\r\n    private static Retrofit retrofit;\r\n    public static final String BASE_URL = \"http://192.168.100.193:8080\";\r\n\r\n    public static Retrofit getRetrofitInstance() {\r\n        if (retrofit == null) {\r\n            retrofit = new Retrofit.Builder()\r\n                    .baseUrl(BASE_URL)\r\n                    .addConverterFactory(GsonConverterFactory.create())\r\n                    .build();\r\n        }\r\n        return retrofit;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/vn/edu/stu/datvexemphim/Retrofit/RetrofitSer.java b/app/src/main/java/vn/edu/stu/datvexemphim/Retrofit/RetrofitSer.java
+--- a/app/src/main/java/vn/edu/stu/datvexemphim/Retrofit/RetrofitSer.java	(revision 3d6ae142dae3b7876821f337bb6d849ab1476e45)
++++ b/app/src/main/java/vn/edu/stu/datvexemphim/Retrofit/RetrofitSer.java	(date 1733207440137)
+@@ -6,7 +6,7 @@
+ public class RetrofitSer {
+     private static Retrofit retrofit;
+     public static final String BASE_URL = "http://192.168.100.193:8080";
+-
++//172.20.10.3
+     public static Retrofit getRetrofitInstance() {
+         if (retrofit == null) {
+             retrofit = new Retrofit.Builder()
+Index: .idea/vcs.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/vcs.xml b/.idea/vcs.xml
+new file mode 100644
+--- /dev/null	(date 1733177855451)
++++ b/.idea/vcs.xml	(date 1733177855451)
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="VcsDirectoryMappings">
++    <mapping directory="$PROJECT_DIR$" vcs="Git" />
++  </component>
++</project>
+\ No newline at end of file
+Index: gradle/wrapper/gradle-wrapper.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>#Sun Nov 17 17:06:58 ICT 2024\r\ndistributionBase=GRADLE_USER_HOME\r\ndistributionPath=wrapper/dists\r\ndistributionUrl=https\\://services.gradle.org/distributions/gradle-8.2-bin.zip\r\nzipStoreBase=GRADLE_USER_HOME\r\nzipStorePath=wrapper/dists\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>ISO-8859-1
+===================================================================
+diff --git a/gradle/wrapper/gradle-wrapper.properties b/gradle/wrapper/gradle-wrapper.properties
+--- a/gradle/wrapper/gradle-wrapper.properties	(revision 3d6ae142dae3b7876821f337bb6d849ab1476e45)
++++ b/gradle/wrapper/gradle-wrapper.properties	(date 1733180405765)
+@@ -1,6 +1,6 @@
+ #Sun Nov 17 17:06:58 ICT 2024
+ distributionBase=GRADLE_USER_HOME
+ distributionPath=wrapper/dists
+-distributionUrl=https\://services.gradle.org/distributions/gradle-8.2-bin.zip
++distributionUrl=https\://services.gradle.org/distributions/gradle-8.4-bin.zip
+ zipStoreBase=GRADLE_USER_HOME
+ zipStorePath=wrapper/dists
+Index: .idea/gradle.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"GradleSettings\">\r\n    <option name=\"linkedExternalProjectsSettings\">\r\n      <GradleProjectSettings>\r\n        <option name=\"externalProjectPath\" value=\"$PROJECT_DIR$\" />\r\n        <option name=\"gradleJvm\" value=\"#GRADLE_LOCAL_JAVA_HOME\" />\r\n        <option name=\"modules\">\r\n          <set>\r\n            <option value=\"$PROJECT_DIR$\" />\r\n            <option value=\"$PROJECT_DIR$/app\" />\r\n          </set>\r\n        </option>\r\n        <option name=\"resolveExternalAnnotations\" value=\"false\" />\r\n      </GradleProjectSettings>\r\n    </option>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/gradle.xml b/.idea/gradle.xml
+--- a/.idea/gradle.xml	(revision 3d6ae142dae3b7876821f337bb6d849ab1476e45)
++++ b/.idea/gradle.xml	(date 1733183205555)
+@@ -1,5 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
++  <component name="GradleMigrationSettings" migrationVersion="1" />
+   <component name="GradleSettings">
+     <option name="linkedExternalProjectsSettings">
+       <GradleProjectSettings>
+Index: app/build.gradle.kts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>plugins {\r\n    id(\"com.android.application\")\r\n}\r\n\r\nandroid {\r\n    namespace = \"vn.edu.stu.datvexemphim\"\r\n    compileSdk = 34\r\n\r\n    defaultConfig {\r\n        applicationId = \"vn.edu.stu.datvexemphim\"\r\n        minSdk = 24\r\n        targetSdk = 34\r\n        versionCode = 1\r\n        versionName = \"1.0\"\r\n\r\n        testInstrumentationRunner = \"androidx.test.runner.AndroidJUnitRunner\"\r\n    }\r\n\r\n    buildTypes {\r\n        release {\r\n            isMinifyEnabled = false\r\n            proguardFiles(\r\n                getDefaultProguardFile(\"proguard-android-optimize.txt\"),\r\n                \"proguard-rules.pro\"\r\n            )\r\n        }\r\n    }\r\n    compileOptions {\r\n        sourceCompatibility = JavaVersion.VERSION_1_8\r\n        targetCompatibility = JavaVersion.VERSION_1_8\r\n    }\r\n    buildFeatures {\r\n        viewBinding = true\r\n    }\r\n}\r\n\r\ndependencies {\r\n\r\n    implementation(\"androidx.appcompat:appcompat:1.7.0\")\r\n    implementation(\"com.google.android.material:material:1.12.0\")\r\n    implementation(\"androidx.constraintlayout:constraintlayout:2.2.0\")\r\n    implementation(\"androidx.lifecycle:lifecycle-livedata-ktx:2.7.0\")\r\n    implementation(\"androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0\")\r\n    implementation(\"androidx.navigation:navigation-fragment:2.7.7\")\r\n    implementation(\"androidx.navigation:navigation-ui:2.7.7\")\r\n    testImplementation(\"junit:junit:4.13.2\")\r\n    androidTestImplementation(\"androidx.test.ext:junit:1.2.1\")\r\n    androidTestImplementation(\"androidx.test.espresso:espresso-core:3.6.1\")\r\n    implementation (\"com.google.android.material:material:1.9.0\")\r\n    implementation (\"com.google.android.libraries.places:places:2.6.0\")\r\n    implementation (\"com.github.bumptech.glide:glide:4.13.0\")\r\n\r\n    implementation (\"androidx.recyclerview:recyclerview:1.3.2\")\r\n\r\n    annotationProcessor (\"com.github.bumptech.glide:compiler:4.13.0\")\r\n    implementation (\"com.google.android.material:material:1.12.0\")\r\n    implementation(\"com.squareup.retrofit2:retrofit:2.9.0\")\r\n    implementation(\"com.squareup.retrofit2:converter-gson:2.9.0\")\r\n    compileOnly (\"org.projectlombok:lombok:1.18.36\")\r\n    annotationProcessor (\"org.projectlombok:lombok:1.18.36\")\r\n    implementation (\"com.fasterxml.jackson.core:jackson-databind:2.13.3\")\r\n    implementation (\"com.github.bumptech.glide:glide:4.15.1\")\r\n    annotationProcessor (\"com.github.bumptech.glide:compiler:4.15.1\")\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/build.gradle.kts b/app/build.gradle.kts
+--- a/app/build.gradle.kts	(revision 3d6ae142dae3b7876821f337bb6d849ab1476e45)
++++ b/app/build.gradle.kts	(date 1733180436493)
+@@ -51,7 +51,6 @@
+     implementation ("com.github.bumptech.glide:glide:4.13.0")
+ 
+     implementation ("androidx.recyclerview:recyclerview:1.3.2")
+-
+     annotationProcessor ("com.github.bumptech.glide:compiler:4.13.0")
+     implementation ("com.google.android.material:material:1.12.0")
+     implementation("com.squareup.retrofit2:retrofit:2.9.0")
+@@ -61,4 +60,5 @@
+     implementation ("com.fasterxml.jackson.core:jackson-databind:2.13.3")
+     implementation ("com.github.bumptech.glide:glide:4.15.1")
+     annotationProcessor ("com.github.bumptech.glide:compiler:4.15.1")
++
+ }
+\ No newline at end of file
+Index: build.gradle.kts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>// Top-level build file where you can add configuration options common to all sub-projects/modules.\r\nplugins {\r\n    id(\"com.android.application\") version \"8.2.1\" apply false\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/build.gradle.kts b/build.gradle.kts
+--- a/build.gradle.kts	(revision 3d6ae142dae3b7876821f337bb6d849ab1476e45)
++++ b/build.gradle.kts	(date 1733180405760)
+@@ -1,4 +1,4 @@
+ // Top-level build file where you can add configuration options common to all sub-projects/modules.
+ plugins {
+-    id("com.android.application") version "8.2.1" apply false
++    id("com.android.application") version "8.3.2" apply false
+ }
+\ No newline at end of file
+Index: app/src/main/java/vn/edu/stu/datvexemphim/ApiService/ApiService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package vn.edu.stu.datvexemphim.ApiService;\r\n\r\nimport java.util.List;\r\n\r\nimport retrofit2.Call;\r\nimport retrofit2.http.Body;\r\nimport retrofit2.http.GET;\r\nimport retrofit2.http.POST;\r\nimport retrofit2.http.Path;\r\nimport vn.edu.stu.datvexemphim.DTO.Response.ApiResponse;\r\nimport vn.edu.stu.datvexemphim.DTO.Response.MovieResponse;\r\n\r\npublic interface ApiService {\r\n//    @POST(\"/accounts/register\")\r\n//    Call<ApiResponse<AccountResponse>> register(@Body RegisterAccountRequest registerRequest);\r\n    @GET(\"/movies/{id}\") // Thay {id} bằng ID phim\r\n    Call<ApiResponse<MovieResponse>> getMovie(@Path(\"id\") int movieId);\r\n    @GET(\"/movies\") // Thay {id} bằng ID phim\r\n    Call<ApiResponse<List<MovieResponse>>> getAllMovie();\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/vn/edu/stu/datvexemphim/ApiService/ApiService.java b/app/src/main/java/vn/edu/stu/datvexemphim/ApiService/ApiService.java
+--- a/app/src/main/java/vn/edu/stu/datvexemphim/ApiService/ApiService.java	(revision 3d6ae142dae3b7876821f337bb6d849ab1476e45)
++++ b/app/src/main/java/vn/edu/stu/datvexemphim/ApiService/ApiService.java	(date 1733197914325)
+@@ -2,19 +2,55 @@
+ 
+ import java.util.List;
+ 
++import okhttp3.MultipartBody;
++import okhttp3.RequestBody;
+ import retrofit2.Call;
+ import retrofit2.http.Body;
++import retrofit2.http.DELETE;
+ import retrofit2.http.GET;
++import retrofit2.http.Multipart;
+ import retrofit2.http.POST;
++import retrofit2.http.PUT;
++import retrofit2.http.Part;
+ import retrofit2.http.Path;
++import retrofit2.http.Query;
+ import vn.edu.stu.datvexemphim.DTO.Response.ApiResponse;
+ import vn.edu.stu.datvexemphim.DTO.Response.MovieResponse;
+ 
+ public interface ApiService {
+-//    @POST("/accounts/register")
++    //    @POST("/accounts/register")
+ //    Call<ApiResponse<AccountResponse>> register(@Body RegisterAccountRequest registerRequest);
+-    @GET("/movies/{id}") // Thay {id} bằng ID phim
++    @GET("/movies/{id}")
++    // Thay {id} bằng ID phim
+     Call<ApiResponse<MovieResponse>> getMovie(@Path("id") int movieId);
+-    @GET("/movies") // Thay {id} bằng ID phim
++
++    @GET("/movies")
++        // Thay {id} bằng ID phim
+     Call<ApiResponse<List<MovieResponse>>> getAllMovie();
++
++    @Multipart
++    @POST("/movies")
++    Call<ApiResponse<MovieResponse>> addMovies(
++            @Query("movieName") String movieName,
++            @Query("movieDes") String movieDes,
++            @Query("movieGenres") String movieGenres,
++            @Query("movieRelease") String movieRelease,
++            @Query("movieLength") int movieLength,
++            @Part MultipartBody.Part moviePoster
++    );
++
++    @DELETE("/movies/{id}")
++    Call<ApiResponse<String>> deleteMovie(@Path("id") int movieId);
++
++    @Multipart
++    @PUT("/movies/{id}")
++    Call<ApiResponse<MovieResponse>> updateMovie(
++            @Path("id") int id,
++            @Query("movieName") String movieName,
++            @Query("movieDes") String movieDes,
++            @Query("movieGenres") String movieGenres,
++            @Query("movieRelease") String movieRelease,
++            @Query("movieLength") int movieLength,
++            @Part MultipartBody.Part moviePoster
++    );
+ }
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"ExternalStorageConfigurationManager\" enabled=\"true\" />\r\n  <component name=\"ProjectRootManager\" version=\"2\" languageLevel=\"JDK_17\" default=\"true\" project-jdk-name=\"jbr-17\" project-jdk-type=\"JavaSDK\">\r\n    <output url=\"file://$PROJECT_DIR$/build/classes\" />\r\n  </component>\r\n  <component name=\"ProjectType\">\r\n    <option name=\"id\" value=\"Android\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+--- a/.idea/misc.xml	(revision 3d6ae142dae3b7876821f337bb6d849ab1476e45)
++++ b/.idea/misc.xml	(date 1733185931969)
+@@ -1,4 +1,3 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+   <component name="ExternalStorageConfigurationManager" enabled="true" />
+   <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="jbr-17" project-jdk-type="JavaSDK">
+Index: app/src/main/java/vn/edu/stu/datvexemphim/ViewMatch/FilmAdapter.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package vn.edu.stu.datvexemphim.ViewMatch;\r\n\r\nimport android.content.Context;\r\nimport android.view.LayoutInflater;\r\nimport android.view.View;\r\nimport android.view.ViewGroup;\r\nimport android.widget.ImageView;\r\nimport android.widget.TextView;\r\n\r\nimport androidx.annotation.NonNull;\r\nimport androidx.recyclerview.widget.RecyclerView;\r\n\r\nimport com.bumptech.glide.Glide;\r\n\r\nimport java.util.List;\r\n\r\nimport vn.edu.stu.datvexemphim.DTO.Response.MovieResponse;\r\nimport vn.edu.stu.datvexemphim.R;\r\nimport vn.edu.stu.datvexemphim.Retrofit.RetrofitSer;\r\n\r\n\r\npublic class FilmAdapter extends RecyclerView.Adapter<FilmAdapter.FilmViewHolder> {\r\n    public List<MovieResponse> movieList;\r\n\r\n    private Context context;\r\n    private int resoure;\r\n    public void setSearchList(List<MovieResponse> movieList) {\r\n        this.movieList = movieList;\r\n        notifyDataSetChanged();\r\n    }\r\n    private OnItemClickListener onItemClickListener;\r\n\r\n    public void setOnItemClickListener(OnItemClickListener listener) {\r\n        this.onItemClickListener = listener;\r\n    }\r\n    public FilmAdapter(Context context, int resoure, List<MovieResponse> movieList) {\r\n        this.context = context;\r\n        this.movieList = movieList;\r\n        this.resoure = resoure;\r\n    }\r\n\r\n    @NonNull\r\n    @Override\r\n    public FilmViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {\r\n        LayoutInflater inflater = LayoutInflater.from(context);\r\n        View view = inflater.inflate(resoure, parent, false);\r\n        return new FilmViewHolder(view);\r\n    }\r\n\r\n    @Override\r\n    public void onBindViewHolder(@NonNull FilmViewHolder holder, int position) {\r\n        MovieResponse movie = movieList.get(position);\r\n        holder.tv_movieName.setText(movie.getMovieName());  // Đặt tên phim\r\n        holder.tv_movieLength.setText(String.valueOf(movie.getMovie_length()));  // Đặt độ dài\r\n        holder.tv_movieGenres.setText(movie.getMovie_genres());  // Đặt thể loại\r\n        String url = RetrofitSer.BASE_URL + movie.getMovie_poster();\r\n        Glide.with(context)\r\n                .load(url)\r\n                .placeholder(R.drawable.ic_launcher_background) // Hình ảnh hiển thị trong khi tải\r\n                .error(R.drawable.ic_launcher_foreground)             // Hình ảnh hiển thị khi lỗi\r\n                .into(holder.movieImageView);\r\n\r\n        // Load ảnh nếu có (dùng thư viện như Glide hoặc Picasso)\r\n        // Glide.with(context).load(movie.getImageUrl()).into(holder.movieImageView);\r\n        holder.itemView.setOnClickListener(v -> {\r\n            if (onItemClickListener != null) {\r\n                onItemClickListener.onItemClick(position);\r\n            }\r\n        });\r\n    }\r\n\r\n    @Override\r\n    public int getItemCount() {\r\n        return movieList != null ? movieList.size() : 0;\r\n    }\r\n\r\n    public static class FilmViewHolder extends RecyclerView.ViewHolder {\r\n        TextView tv_movieName, tv_movieLength, tv_movieGenres;\r\n        ImageView movieImageView;\r\n\r\n        public FilmViewHolder(View itemView) {\r\n            super(itemView);\r\n            tv_movieName = itemView.findViewById(R.id.tv_Item_movieName);\r\n            tv_movieLength = itemView.findViewById(R.id.tv_Item_length);\r\n            tv_movieGenres = itemView.findViewById(R.id.tv_Item_genres);\r\n            movieImageView = itemView.findViewById(R.id.img_Item_movieImage);\r\n        }\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/vn/edu/stu/datvexemphim/ViewMatch/FilmAdapter.java b/app/src/main/java/vn/edu/stu/datvexemphim/ViewMatch/FilmAdapter.java
+--- a/app/src/main/java/vn/edu/stu/datvexemphim/ViewMatch/FilmAdapter.java	(revision 3d6ae142dae3b7876821f337bb6d849ab1476e45)
++++ b/app/src/main/java/vn/edu/stu/datvexemphim/ViewMatch/FilmAdapter.java	(date 1733186621565)
+@@ -11,6 +11,7 @@
+ import androidx.recyclerview.widget.RecyclerView;
+ 
+ import com.bumptech.glide.Glide;
++import com.bumptech.glide.load.engine.DiskCacheStrategy;
+ 
+ import java.util.List;
+ 
+@@ -24,15 +25,23 @@
+ 
+     private Context context;
+     private int resoure;
++
+     public void setSearchList(List<MovieResponse> movieList) {
+         this.movieList = movieList;
+         notifyDataSetChanged();
+     }
++
+     private OnItemClickListener onItemClickListener;
++    private OnItemLongClickListener OnItemLongClickListener;
+ 
+     public void setOnItemClickListener(OnItemClickListener listener) {
+         this.onItemClickListener = listener;
+     }
++
++    public void setOnItemLongClickListener(OnItemLongClickListener listener) {
++        this.OnItemLongClickListener = listener;
++    }
++
+     public FilmAdapter(Context context, int resoure, List<MovieResponse> movieList) {
+         this.context = context;
+         this.movieList = movieList;
+@@ -57,7 +66,8 @@
+         Glide.with(context)
+                 .load(url)
+                 .placeholder(R.drawable.ic_launcher_background) // Hình ảnh hiển thị trong khi tải
+-                .error(R.drawable.ic_launcher_foreground)             // Hình ảnh hiển thị khi lỗi
++                .error(R.drawable.ic_launcher_foreground)// Hình ảnh hiển thị khi lỗi
++                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                 .into(holder.movieImageView);
+ 
+         // Load ảnh nếu có (dùng thư viện như Glide hoặc Picasso)
+@@ -67,6 +77,17 @@
+                 onItemClickListener.onItemClick(position);
+             }
+         });
++        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
++            @Override
++            public boolean onLongClick(View v) {
++                if (OnItemLongClickListener != null) {
++                    OnItemLongClickListener.onItemLongClick(v, position);
++                    return true;
++                }
++                return false;
++            }
++        });
++
+     }
+ 
+     @Override
+Index: app/src/main/java/vn/edu/stu/datvexemphim/ViewMatch/OnItemLongClickListener.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/vn/edu/stu/datvexemphim/ViewMatch/OnItemLongClickListener.java b/app/src/main/java/vn/edu/stu/datvexemphim/ViewMatch/OnItemLongClickListener.java
+new file mode 100644
+--- /dev/null	(date 1733186243783)
++++ b/app/src/main/java/vn/edu/stu/datvexemphim/ViewMatch/OnItemLongClickListener.java	(date 1733186243783)
+@@ -0,0 +1,7 @@
++package vn.edu.stu.datvexemphim.ViewMatch;
++
++import android.view.View;
++
++public interface OnItemLongClickListener {
++    void onItemLongClick(View view, int position);
++}
+Index: app/src/main/res/values/colors.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<resources>\r\n    <color name=\"black\">#FF000000</color>\r\n    <color name=\"white\">#FFFFFFFF</color>\r\n    <color name=\"gray\">#8C8C8C</color>\r\n</resources>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/values/colors.xml b/app/src/main/res/values/colors.xml
+--- a/app/src/main/res/values/colors.xml	(revision 3d6ae142dae3b7876821f337bb6d849ab1476e45)
++++ b/app/src/main/res/values/colors.xml	(date 1733176309221)
+@@ -2,5 +2,7 @@
+ <resources>
+     <color name="black">#FF000000</color>
+     <color name="white">#FFFFFFFF</color>
++    <color name="white1">#c7c7c7</color>
+     <color name="gray">#8C8C8C</color>
++
+ </resources>
+\ No newline at end of file
+Index: app/src/main/res/layout/frm_update_movies.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<androidx.constraintlayout.widget.ConstraintLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    android:layout_width=\"match_parent\"\r\n    android:layout_height=\"match_parent\"\r\n    xmlns:tools=\"http://schemas.android.com/tools\"\r\n    android:background=\"#000000\"\r\n    android:padding=\"10dp\"\r\n    tools:context=\".Activity.capNhapPhim_Activity\"\r\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\">\r\n    <LinearLayout\r\n        android:id=\"@+id/ln_img\"\r\n        android:orientation=\"vertical\"\r\n        android:layout_width=\"match_parent\"\r\n        android:layout_height=\"wrap_content\"\r\n        app:layout_constraintTop_toTopOf=\"parent\"\r\n        app:layout_constraintStart_toStartOf=\"parent\"\r\n        app:layout_constraintEnd_toEndOf=\"parent\">\r\n        <LinearLayout\r\n            android:orientation=\"vertical\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:layout_gravity=\"center\"\r\n            >\r\n            <ImageView\r\n                android:layout_margin=\"10dp\"\r\n                android:id=\"@+id/frm_update_img\"\r\n                android:layout_width=\"200dp\"\r\n                android:layout_height=\"200dp\"\r\n                android:src=\"@drawable/infinitywar\"\r\n                android:scaleType=\"centerCrop\"/>\r\n            <Button\r\n                android:layout_width=\"150dp\"\r\n                android:layout_height=\"wrap_content\"\r\n                android:layout_marginBottom=\"10dp\"\r\n                app:backgroundTint=\"@null\"\r\n                android:text=\"Chọn ảnh\"\r\n                android:textSize=\"20sp\"\r\n                android:textColor=\"#000000\"\r\n                android:background=\"#FCC434\"\r\n                android:layout_gravity=\"center\"/>\r\n        </LinearLayout>\r\n\r\n    </LinearLayout>\r\n    <LinearLayout\r\n        android:layout_marginTop=\"30dp\"\r\n        android:layout_width=\"match_parent\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:orientation=\"vertical\"\r\n        app:layout_constraintTop_toBottomOf=\"@+id/ln_img\"\r\n        app:layout_constraintStart_toStartOf=\"parent\"\r\n        app:layout_constraintEnd_toEndOf=\"parent\"\r\n        >\r\n        <LinearLayout\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:orientation=\"horizontal\">\r\n            <TextView\r\n                android:text=\"Mã: \"\r\n                android:textColor=\"@color/white\"\r\n                android:textStyle=\"bold\"\r\n                android:textSize=\"20sp\"\r\n                android:gravity=\"center\"\r\n                android:layout_width=\"wrap_content\"\r\n                android:layout_height=\"match_parent\"/>\r\n            <EditText\r\n                android:id=\"@+id/frmUpdate_edt_maPhim\"\r\n                android:layout_width=\"match_parent\"\r\n                android:layout_height=\"wrap_content\"\r\n                android:layout_marginStart=\"92dp\"\r\n                android:hint=\"Mã phim\"\r\n                android:enabled=\"false\"\r\n                />\r\n        </LinearLayout>\r\n        <LinearLayout\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:orientation=\"horizontal\">\r\n            <TextView\r\n                android:text=\"Tên phim: \"\r\n                android:textColor=\"@color/white\"\r\n                android:textStyle=\"bold\"\r\n                android:textSize=\"20sp\"\r\n                android:gravity=\"center\"\r\n                android:layout_width=\"wrap_content\"\r\n                android:layout_height=\"match_parent\"/>\r\n            <EditText\r\n                android:id=\"@+id/frmUpdate_edt_tenPhim\"\r\n                android:layout_width=\"match_parent\"\r\n                android:layout_height=\"wrap_content\"\r\n                android:layout_marginStart=\"34dp\"\r\n                android:hint=\"Nhập tên phim\"\r\n                android:textColorHint=\"@color/white\"\r\n                />\r\n        </LinearLayout>\r\n        <LinearLayout\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:orientation=\"horizontal\">\r\n            <TextView\r\n                android:text=\"Thể loại: \"\r\n                android:textColor=\"@color/white\"\r\n                android:textStyle=\"bold\"\r\n                android:textSize=\"20sp\"\r\n                android:gravity=\"center\"\r\n                android:layout_width=\"wrap_content\"\r\n                android:layout_height=\"match_parent\"/>\r\n            <EditText\r\n                android:id=\"@+id/frmUpdate_edt_theLoaiPhim\"\r\n                android:layout_width=\"match_parent\"\r\n                android:layout_height=\"wrap_content\"\r\n                android:layout_marginStart=\"47dp\"\r\n                android:hint=\"Nhập thể loại\"\r\n                android:textColorHint=\"@color/white\"\r\n                />\r\n        </LinearLayout>\r\n        <LinearLayout\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:orientation=\"horizontal\">\r\n            <TextView\r\n                android:text=\"Phát hành: \"\r\n                android:textColor=\"@color/white\"\r\n                android:textStyle=\"bold\"\r\n                android:textSize=\"20sp\"\r\n                android:gravity=\"center\"\r\n                android:layout_width=\"wrap_content\"\r\n                android:layout_height=\"match_parent\"/>\r\n            <ImageButton\r\n                android:id=\"@+id/frmUpdate_btn_calendar\"\r\n                android:layout_width=\"50dp\"\r\n                android:layout_height=\"50dp\"\r\n                android:datePickerMode=\"calendar\"\r\n                android:scaleType=\"centerCrop\"\r\n                android:inputType=\"date\"\r\n                android:layout_marginStart=\"27dp\"\r\n                android:background=\"#999999\"\r\n                android:src=\"@drawable/icon_calendar_96\"/>\r\n            <TextView\r\n                android:id=\"@+id/frmUpdate_tv_ngay\"\r\n                android:text=\"\"\r\n                android:textColor=\"@color/white\"\r\n                android:textStyle=\"bold\"\r\n                android:layout_marginStart=\"20dp\"\r\n                android:textSize=\"20sp\"\r\n                android:gravity=\"center\"\r\n                android:layout_width=\"wrap_content\"\r\n                android:layout_height=\"match_parent\"/>\r\n        </LinearLayout>\r\n\r\n        <LinearLayout\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:orientation=\"horizontal\">\r\n            <TextView\r\n                android:text=\"Thời lượng: \"\r\n                android:textColor=\"@color/white\"\r\n                android:textStyle=\"bold\"\r\n                android:textSize=\"20sp\"\r\n                android:gravity=\"center\"\r\n                android:layout_width=\"wrap_content\"\r\n                android:layout_height=\"match_parent\"/>\r\n            <EditText\r\n                android:id=\"@+id/frmUpdate_edt_doDaiPhim\"\r\n                android:layout_width=\"match_parent\"\r\n                android:layout_height=\"wrap_content\"\r\n                android:layout_marginStart=\"20dp\"\r\n                android:hint=\"Nhập thời lượng\"\r\n                android:textColorHint=\"@color/white\"/>\r\n        </LinearLayout>\r\n\r\n        <LinearLayout\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:orientation=\"horizontal\">\r\n            <TextView\r\n                android:text=\"Mô tả: \"\r\n                android:textColor=\"@color/white\"\r\n                android:textStyle=\"bold\"\r\n                android:textSize=\"20sp\"\r\n                android:gravity=\"center\"\r\n                android:layout_width=\"wrap_content\"\r\n                android:layout_height=\"match_parent\"/>\r\n            <EditText\r\n                android:id=\"@+id/frmUpdate_edt_moTaPhim\"\r\n                android:layout_width=\"match_parent\"\r\n                android:layout_height=\"wrap_content\"\r\n                android:layout_marginStart=\"68dp\"\r\n                android:hint=\"Nhập mô tả\"\r\n                android:textColorHint=\"@color/white\"/>\r\n        </LinearLayout>\r\n\r\n        <LinearLayout\r\n            android:layout_marginTop=\"20dp\"\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:orientation=\"horizontal\"\r\n            android:weightSum=\"2\">\r\n\r\n            <Button\r\n                android:layout_weight=\"1\"\r\n                android:layout_width=\"150dp\"\r\n                android:layout_height=\"wrap_content\"\r\n                app:backgroundTint=\"@null\"\r\n                android:text=\"Thêm\"\r\n                android:textSize=\"20sp\"\r\n                android:textColor=\"#000000\"\r\n                android:layout_marginStart=\"5dp\"\r\n                android:layout_marginEnd=\"5dp\"\r\n                android:textStyle=\"bold\"\r\n                android:background=\"@drawable/custom_button\"\r\n                android:layout_gravity=\"center\"/>\r\n            <Button\r\n                android:layout_weight=\"1\"\r\n                android:layout_width=\"150dp\"\r\n                android:layout_height=\"wrap_content\"\r\n                app:backgroundTint=\"@null\"\r\n                android:text=\"Sửa\"\r\n                android:textStyle=\"bold\"\r\n                android:layout_marginEnd=\"5dp\"\r\n                android:layout_marginStart=\"5dp\"\r\n                android:textSize=\"20sp\"\r\n                android:textColor=\"#000000\"\r\n                android:background=\"@drawable/custom_button\"/>\r\n        </LinearLayout>\r\n\r\n    </LinearLayout>\r\n\r\n</androidx.constraintlayout.widget.ConstraintLayout>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/frm_update_movies.xml b/app/src/main/res/layout/frm_update_movies.xml
+--- a/app/src/main/res/layout/frm_update_movies.xml	(revision 3d6ae142dae3b7876821f337bb6d849ab1476e45)
++++ b/app/src/main/res/layout/frm_update_movies.xml	(date 1733177748267)
+@@ -1,226 +1,258 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:app="http://schemas.android.com/apk/res-auto"
++    xmlns:tools="http://schemas.android.com/tools"
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
+-    xmlns:tools="http://schemas.android.com/tools"
+     android:background="#000000"
+     android:padding="10dp"
+-    tools:context=".Activity.capNhapPhim_Activity"
+-    xmlns:app="http://schemas.android.com/apk/res-auto">
++    tools:context=".Activity.capNhapPhim_Activity">
++
+     <LinearLayout
+         android:id="@+id/ln_img"
+-        android:orientation="vertical"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+-        app:layout_constraintTop_toTopOf="parent"
++        android:orientation="vertical"
++        app:layout_constraintEnd_toEndOf="parent"
+         app:layout_constraintStart_toStartOf="parent"
+-        app:layout_constraintEnd_toEndOf="parent">
++        app:layout_constraintTop_toTopOf="parent">
++
+         <LinearLayout
+-            android:orientation="vertical"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_gravity="center"
+-            >
++            android:orientation="vertical">
++
+             <ImageView
+-                android:layout_margin="10dp"
+                 android:id="@+id/frm_update_img"
+                 android:layout_width="200dp"
+                 android:layout_height="200dp"
+-                android:src="@drawable/infinitywar"
+-                android:scaleType="centerCrop"/>
++                android:layout_margin="10dp"
++                android:scaleType="centerCrop"
++                android:src="@drawable/infinitywar" />
++
+             <Button
++                android:id="@+id/btn_chonAnh"
+                 android:layout_width="150dp"
+                 android:layout_height="wrap_content"
++                android:layout_gravity="center"
+                 android:layout_marginBottom="10dp"
+-                app:backgroundTint="@null"
++                android:background="#FCC434"
+                 android:text="Chọn ảnh"
+-                android:textSize="20sp"
+                 android:textColor="#000000"
+-                android:background="#FCC434"
+-                android:layout_gravity="center"/>
++                android:textSize="20sp"
++                app:backgroundTint="@null" />
+         </LinearLayout>
+ 
+     </LinearLayout>
++
+     <LinearLayout
+-        android:layout_marginTop="30dp"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
++        android:layout_marginTop="30dp"
+         android:orientation="vertical"
+-        app:layout_constraintTop_toBottomOf="@+id/ln_img"
+-        app:layout_constraintStart_toStartOf="parent"
+         app:layout_constraintEnd_toEndOf="parent"
+-        >
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toBottomOf="@+id/ln_img">
++
+         <LinearLayout
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:orientation="horizontal">
++
+             <TextView
++                android:layout_width="wrap_content"
++                android:layout_height="match_parent"
++                android:gravity="center"
+                 android:text="Mã: "
+                 android:textColor="@color/white"
+-                android:textStyle="bold"
+                 android:textSize="20sp"
+-                android:gravity="center"
+-                android:layout_width="wrap_content"
+-                android:layout_height="match_parent"/>
+-            <EditText
++                android:textStyle="bold" />
++
++            <TextView
+                 android:id="@+id/frmUpdate_edt_maPhim"
++                android:textSize="20sp"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:layout_marginStart="92dp"
+-                android:hint="Mã phim"
+                 android:enabled="false"
+-                />
++                android:padding="5dp"
++                android:hint="Mã phim"
++                android:textColor="@color/white1"
++                android:textColorHint="@color/gray" />
+         </LinearLayout>
++
+         <LinearLayout
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:orientation="horizontal">
++
+             <TextView
++                android:layout_width="wrap_content"
++                android:layout_height="match_parent"
++                android:gravity="center"
+                 android:text="Tên phim: "
+                 android:textColor="@color/white"
+-                android:textStyle="bold"
+                 android:textSize="20sp"
+-                android:gravity="center"
+-                android:layout_width="wrap_content"
+-                android:layout_height="match_parent"/>
++                android:textStyle="bold" />
++
+             <EditText
+                 android:id="@+id/frmUpdate_edt_tenPhim"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:layout_marginStart="34dp"
+                 android:hint="Nhập tên phim"
+-                android:textColorHint="@color/white"
+-                />
++                android:textColor="@color/white1"
++                android:textColorHint="@color/gray" />
+         </LinearLayout>
++
+         <LinearLayout
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:orientation="horizontal">
++
+             <TextView
++                android:layout_width="wrap_content"
++                android:layout_height="match_parent"
++                android:gravity="center"
+                 android:text="Thể loại: "
+                 android:textColor="@color/white"
+-                android:textStyle="bold"
+                 android:textSize="20sp"
+-                android:gravity="center"
+-                android:layout_width="wrap_content"
+-                android:layout_height="match_parent"/>
++                android:textStyle="bold" />
++
+             <EditText
+                 android:id="@+id/frmUpdate_edt_theLoaiPhim"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:layout_marginStart="47dp"
+                 android:hint="Nhập thể loại"
+-                android:textColorHint="@color/white"
+-                />
++                android:textColor="@color/white1"
++                android:textColorHint="@color/gray" />
+         </LinearLayout>
++
+         <LinearLayout
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:orientation="horizontal">
++
+             <TextView
++                android:layout_width="wrap_content"
++                android:layout_height="match_parent"
++                android:gravity="center"
+                 android:text="Phát hành: "
+                 android:textColor="@color/white"
+-                android:textStyle="bold"
+                 android:textSize="20sp"
+-                android:gravity="center"
++                android:textStyle="bold" />
++
++            <TextView
++                android:id="@+id/frmUpdate_tv_ngay"
+                 android:layout_width="wrap_content"
+-                android:layout_height="match_parent"/>
++                android:layout_height="match_parent"
++                android:layout_marginStart="27dp"
++                android:gravity="center"
++                android:text="--/--/----"
++                android:textColor="@color/white1"
++                android:textSize="20sp"
++                android:textStyle="bold" />
++
+             <ImageButton
+                 android:id="@+id/frmUpdate_btn_calendar"
+                 android:layout_width="50dp"
+                 android:layout_height="50dp"
++                android:layout_marginStart="50dp"
++                android:background="#999999"
+                 android:datePickerMode="calendar"
+-                android:scaleType="centerCrop"
+                 android:inputType="date"
+-                android:layout_marginStart="27dp"
+-                android:background="#999999"
+-                android:src="@drawable/icon_calendar_96"/>
+-            <TextView
+-                android:id="@+id/frmUpdate_tv_ngay"
+-                android:text=""
+-                android:textColor="@color/white"
+-                android:textStyle="bold"
+-                android:layout_marginStart="20dp"
+-                android:textSize="20sp"
+-                android:gravity="center"
+-                android:layout_width="wrap_content"
+-                android:layout_height="match_parent"/>
++                android:scaleType="centerCrop"
++                android:src="@drawable/icon_calendar_96" />
++
+         </LinearLayout>
+ 
+         <LinearLayout
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:orientation="horizontal">
++
+             <TextView
++                android:layout_width="wrap_content"
++                android:layout_height="match_parent"
++                android:gravity="center"
+                 android:text="Thời lượng: "
+                 android:textColor="@color/white"
+-                android:textStyle="bold"
+                 android:textSize="20sp"
+-                android:gravity="center"
+-                android:layout_width="wrap_content"
+-                android:layout_height="match_parent"/>
++                android:textStyle="bold" />
++
+             <EditText
+                 android:id="@+id/frmUpdate_edt_doDaiPhim"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:layout_marginStart="20dp"
+                 android:hint="Nhập thời lượng"
+-                android:textColorHint="@color/white"/>
++                android:textColor="@color/white1"
++                android:textColorHint="@color/gray" />
+         </LinearLayout>
+ 
+         <LinearLayout
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:orientation="horizontal">
++
+             <TextView
++                android:layout_width="wrap_content"
++                android:layout_height="match_parent"
++                android:gravity="center"
+                 android:text="Mô tả: "
+                 android:textColor="@color/white"
+-                android:textStyle="bold"
+                 android:textSize="20sp"
+-                android:gravity="center"
+-                android:layout_width="wrap_content"
+-                android:layout_height="match_parent"/>
++                android:textStyle="bold" />
++
+             <EditText
+                 android:id="@+id/frmUpdate_edt_moTaPhim"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:layout_marginStart="68dp"
+                 android:hint="Nhập mô tả"
+-                android:textColorHint="@color/white"/>
++                android:textColor="@color/white1"
++                android:textColorHint="@color/gray" />
+         </LinearLayout>
+ 
+         <LinearLayout
+-            android:layout_marginTop="20dp"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
++            android:layout_marginTop="20dp"
+             android:orientation="horizontal"
++            android:gravity="center"
+             android:weightSum="2">
+ 
+             <Button
++                android:id="@+id/btn_them"
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:layout_gravity="center"
++                android:layout_marginStart="5dp"
++                android:layout_marginEnd="5dp"
+                 android:layout_weight="1"
+-                android:layout_width="150dp"
+-                android:layout_height="wrap_content"
+-                app:backgroundTint="@null"
++                android:background="@drawable/custom_button"
+                 android:text="Thêm"
+-                android:textSize="20sp"
+                 android:textColor="#000000"
+-                android:layout_marginStart="5dp"
+-                android:layout_marginEnd="5dp"
++                android:textSize="20sp"
+                 android:textStyle="bold"
+-                android:background="@drawable/custom_button"
+-                android:layout_gravity="center"/>
++                app:backgroundTint="@null" />
++
+             <Button
++                android:id="@+id/btn_sua"
++
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:layout_marginStart="5dp"
++                android:layout_marginEnd="5dp"
+                 android:layout_weight="1"
+-                android:layout_width="150dp"
+-                android:layout_height="wrap_content"
+-                app:backgroundTint="@null"
++                android:background="@drawable/custom_button"
+                 android:text="Sửa"
+-                android:textStyle="bold"
+-                android:layout_marginEnd="5dp"
+-                android:layout_marginStart="5dp"
++                android:textColor="#000000"
+                 android:textSize="20sp"
+-                android:textColor="#000000"
+-                android:background="@drawable/custom_button"/>
++                android:textStyle="bold"
++                app:backgroundTint="@null" />
+         </LinearLayout>
+ 
+     </LinearLayout>
+Index: app/src/main/res/xml/network_security_config.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<network-security-config>\r\n    <domain-config cleartextTrafficPermitted=\"true\">\r\n        <domain includeSubdomains=\"true\">192.168.100.193</domain>\r\n    </domain-config>\r\n</network-security-config>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/xml/network_security_config.xml b/app/src/main/res/xml/network_security_config.xml
+--- a/app/src/main/res/xml/network_security_config.xml	(revision 3d6ae142dae3b7876821f337bb6d849ab1476e45)
++++ b/app/src/main/res/xml/network_security_config.xml	(date 1733194749031)
+@@ -2,5 +2,6 @@
+ <network-security-config>
+     <domain-config cleartextTrafficPermitted="true">
+         <domain includeSubdomains="true">192.168.100.193</domain>
++        <domain includeSubdomains="true">172.20.10.3</domain>
+     </domain-config>
+ </network-security-config>
+\ No newline at end of file
+Index: app/src/main/java/vn/edu/stu/datvexemphim/ViewMatch/FormatDate.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/vn/edu/stu/datvexemphim/ViewMatch/FormatDate.java b/app/src/main/java/vn/edu/stu/datvexemphim/ViewMatch/FormatDate.java
+new file mode 100644
+--- /dev/null	(date 1733194855062)
++++ b/app/src/main/java/vn/edu/stu/datvexemphim/ViewMatch/FormatDate.java	(date 1733194855062)
+@@ -0,0 +1,38 @@
++package vn.edu.stu.datvexemphim.ViewMatch;
++
++import java.text.ParseException;
++import java.text.SimpleDateFormat;
++import java.util.Date;
++
++public class FormatDate {
++    public static String formatDate(String inputDate) {
++        try {
++            // Định dạng của chuỗi đầu vào
++            SimpleDateFormat inputFormat = new SimpleDateFormat("dd/MM/yyyy");
++            // Định dạng cần đầu ra
++            SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
++            // Chuyển đổi chuỗi sang Date
++            Date date = inputFormat.parse(inputDate);
++            // Trả về chuỗi định dạng mới
++            return outputFormat.format(date);
++        } catch (ParseException e) {
++            e.printStackTrace();
++            return null; // Xử lý nếu có lỗi
++        }
++    }
++    public static String fomatDateSQL(String inputDate) {
++        try {
++            // Định dạng của chuỗi đầu vàooutputFormat
++            SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
++            // Định dạng cần đầu ra
++            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
++            // Chuyển đổi chuỗi sang Date
++            Date date = inputFormat.parse(inputDate);
++            // Trả về chuỗi định dạng mới
++            return outputFormat.format(date);
++        } catch (ParseException e) {
++            e.printStackTrace();
++            return null; // Xử lý nếu có lỗi
++        }
++    }
++}
