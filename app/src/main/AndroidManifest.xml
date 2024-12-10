@@ -19,6 +19,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".Activity.thanhToan_MainActivity"
+            android:exported="false" />
+        <activity
             android:name=".Activity.dsVe_MainActivity"
             android:exported="true">
             <intent-filter>
@@ -32,9 +35,7 @@
             android:exported="false" />
         <activity
             android:name=".Activity.dsNguoiDung_MainActivity"
-            android:exported="true">
-
-        </activity>
+            android:exported="true"></activity>
         <activity
             android:name=".Activity.capNhatTaiKhoan_MainActivity"
             android:exported="false" />
