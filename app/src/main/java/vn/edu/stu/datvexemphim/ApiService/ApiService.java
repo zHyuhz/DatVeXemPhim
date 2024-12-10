@@ -1,5 +1,6 @@
 package vn.edu.stu.datvexemphim.ApiService;
 
+import java.util.Date;
 import java.util.List;
 
 import okhttp3.MultipartBody;
@@ -16,10 +17,10 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 import vn.edu.stu.datvexemphim.DTO.Response.ApiResponse;
 import vn.edu.stu.datvexemphim.DTO.Response.MovieResponse;
+import vn.edu.stu.datvexemphim.DTO.Response.UserResponse;
+import vn.edu.stu.datvexemphim.Models.User;
 
 public interface ApiService {
-    //    @POST("/accounts/register")
-//    Call<ApiResponse<AccountResponse>> register(@Body RegisterAccountRequest registerRequest);
     @GET("/movies/{id}")
     // Thay {id} bằng ID phim
     Call<ApiResponse<MovieResponse>> getMovie(@Path("id") int movieId);
@@ -53,4 +54,22 @@ public interface ApiService {
             @Query("movieLength") int movieLength,
             @Part MultipartBody.Part moviePoster
     );
+
+    @GET("/users")
+    Call<ApiResponse<List<UserResponse>>> getAllUsers();
+
+    @POST("/users")
+    Call<ApiResponse<List<UserResponse>>> addUsers();
+
+    @PUT("/users/{id}")
+    Call<ApiResponse<UserResponse>> updateUsers(
+            @Path("id") int id,
+            @Query("fullName") String fullName,
+            @Query("birthday") String birthday,
+            @Query("gender") int gender,
+            @Query("city") String city,
+            @Query("phoneNumber") String phoneNumber
+    );
+    @DELETE("/users/{id}")
+    Call<ApiResponse<String>> deleteUser(@Path("id") int user_id);
 }

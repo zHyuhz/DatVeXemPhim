@@ -3,12 +3,15 @@ package vn.edu.stu.datvexemphim.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -16,19 +19,29 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import vn.edu.stu.datvexemphim.ApiService.ApiService;
+import vn.edu.stu.datvexemphim.DTO.Response.ApiResponse;
+import vn.edu.stu.datvexemphim.DTO.Response.UserResponse;
 import vn.edu.stu.datvexemphim.Models.User;
 import vn.edu.stu.datvexemphim.R;
+import vn.edu.stu.datvexemphim.Retrofit.RetrofitSer;
 import vn.edu.stu.datvexemphim.ViewMatch.UserAdapter;
 
 public class dsNguoiDung_MainActivity extends AppCompatActivity {
     ImageView img_btn_troLai;
     FloatingActionButton flBtn_themMoi;
     ListView listView;
-    List<User> userList;
+    List<UserResponse> userList;
     UserAdapter adapter;
 
     @Override
@@ -44,43 +57,196 @@ public class dsNguoiDung_MainActivity extends AppCompatActivity {
 
         addControls();
         addEvents();
+
     }
 
     private void addControls() {
-        img_btn_troLai =findViewById(R.id.img_dsNguoiDung_troLai);
-        flBtn_themMoi =findViewById(R.id.frmDanhSachNguoiDung_btn_themMoi);
+        img_btn_troLai = findViewById(R.id.img_dsNguoiDung_troLai);
+        flBtn_themMoi = findViewById(R.id.frmDanhSachNguoiDung_btn_themMoi);
 
-        listView =findViewById(R.id.lv_NguoiDung);
+        listView = findViewById(R.id.lv_NguoiDung);
         userList = new ArrayList<>();
-        userList.add(new User("Nguyen Van A", "0987654321"));
-        userList.add(new User("Tran Thi B", "0912345678"));
-        userList.add(new User("Le Van C", "0908765432"));
-        userList.add(new User("Hoang Minh D", "0931234567"));
-        userList.add(new User("Pham Thi E", "0976543210"));
-        userList.add(new User("Do Van F", "0956781234"));
-        userList.add(new User("Bui Minh G", "0923456789"));
-        userList.add(new User("Dang Thi H", "0945678901"));
-        userList.add(new User("Ngo Van I", "0989012345"));
-        userList.add(new User("Pham Thi K", "0910987654"));
-        userList.add(new User("Tran Van L", "0901234567"));
-        userList.add(new User("Nguyen Thi M", "0934567890"));
-        userList.add(new User("Le Minh N", "0978901234"));
-        userList.add(new User("Bui Thi O", "0954321987"));
-        userList.add(new User("Dang Van P", "0921098765"));
-        adapter = new UserAdapter(this,R.layout.item_nguoidung,userList);
-        listView.setAdapter(adapter);
 
+        initUserResponse();
+    }
+
+    private void initUserResponse() {
+        getAllUserFromBackend();
+        adapter = new UserAdapter(this, R.layout.item_nguoidung, userList);
+        listView.setAdapter(adapter);
 
     }
 
     private void addEvents() {
-        img_btn_troLai.setOnClickListener( v ->{
+        img_btn_troLai.setOnClickListener(v -> {
             Intent intent = new Intent(this, trangChu_MainActivity.class);
             startActivity(intent);
         });
         flBtn_themMoi.setOnClickListener(v -> {
             Intent intent = new Intent(this, capNhatNguoiDung_MainActivity.class);
             startActivity(intent);
+        });
+        getAllUserFromBackend();
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                UserResponse userResponse = userList.get(position);
+                Intent intent = new Intent(dsNguoiDung_MainActivity.this,capNhatNguoiDung_MainActivity.class);
+                intent.putExtra("USER",userResponse);
+                startActivity(intent);
+            }
+        });
+
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(dsNguoiDung_MainActivity.this);
+                builder.setTitle("Xóa")
+                        .setMessage("Bạn có muốn xóa người dùng này không?")
+                        .setCancelable(false)
+                        .setPositiveButton("Cóa", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                UserResponse us = userList.get(position);
+                                deleteUser1(us.getUser_id());
+                            }
+                        })
+                        .setNegativeButton("Không", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Toast.makeText(dsNguoiDung_MainActivity.this, String.valueOf(which), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+                return true;
+            }
+        });
+
+    }
+
+    private void deleteUser(int id){
+        ApiService apiService = RetrofitSer.getRetrofitInstance().create(ApiService.class);
+        Call<ApiResponse<String>> call = apiService.deleteUser(id);
+        call.enqueue(new Callback<ApiResponse<String>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<String>> call, Response<ApiResponse<String>> response) {
+                if (response.isSuccessful() && response.body().getCode() == 0) {
+                    // Thành công: Xóa phần tử khỏi danh sách
+                    for (int i = 0; i < userList.size(); i++) {
+                        if (userList.get(i).getUser_id() == id) {
+                            userList.remove(i);
+                            break;
+                        }
+                    }
+
+                    adapter.notifyDataSetChanged();
+
+                } else {
+                    Toast.makeText(dsNguoiDung_MainActivity.this, "Xóa thất bại", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<String>> call, Throwable t) {
+                Log.e("API Error", "Lỗi: " + t.getMessage());
+                Toast.makeText(dsNguoiDung_MainActivity.this, "Xay ra loi ", Toast.LENGTH_SHORT).show();
+
+            }
+        });
+    }
+    private void deleteUser1(int id) {
+        ApiService apiService = RetrofitSer.getRetrofitInstance().create(ApiService.class);
+
+        // Gọi API xóa người dùng với id
+        Call<ApiResponse<String>> call = apiService.deleteUser(id);
+
+        call.enqueue(new Callback<ApiResponse<String>>() {
+            @Override
+            public void onResponse(@NonNull Call<ApiResponse<String>> call, @NonNull Response<ApiResponse<String>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    // Kiểm tra mã trả về từ server
+                    if (response.body().getCode() == 0) {
+                        Toast.makeText(dsNguoiDung_MainActivity.this, "Xóa thành công", Toast.LENGTH_SHORT).show();
+
+                        // Xóa người dùng khỏi danh sách trong ứng dụng
+                        for (int i = 0; i < userList.size(); i++) {
+                            if (userList.get(i).getUser_id() == id) {
+                                userList.remove(i);
+                                break;
+                            }
+                        }
+
+                        // Cập nhật lại dữ liệu trong adapter
+                        adapter.notifyDataSetChanged();
+
+                    } else {
+                        Toast.makeText(dsNguoiDung_MainActivity.this, "Xóa thất bại", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(dsNguoiDung_MainActivity.this, "BODY NULL", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<String>> call, Throwable t) {
+                Log.e("DeleteUser", "API call failed: " + t.getMessage());
+                Toast.makeText(dsNguoiDung_MainActivity.this, "Xảy ra lỗi", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void getAllUserFromBackend() {
+        ApiService apiService = RetrofitSer.getRetrofitInstance().create(ApiService.class);
+        Call<ApiResponse<List<UserResponse>>> call = apiService.getAllUsers();
+        call.enqueue(new Callback<ApiResponse<List<UserResponse>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<UserResponse>>> call, Response<ApiResponse<List<UserResponse>>> response) {
+                if (response.isSuccessful()) {
+                    if (response.body() != null) {
+                        ApiResponse<List<UserResponse>> apiResponse = response.body();
+                        if (apiResponse.getCode() == 0) {
+                            adapter.userList.clear();
+                            userList.addAll(apiResponse.getResult());
+                            adapter.notifyDataSetChanged();
+                            Toast.makeText(dsNguoiDung_MainActivity.this, "Thanh cong 1", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(dsNguoiDung_MainActivity.this, "Thất bại 1", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(dsNguoiDung_MainActivity.this, "Body null", Toast.LENGTH_SHORT).show();
+
+                    }
+                } else {
+                    try {
+                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "Unknown error";
+                        Gson gson = new Gson();
+                        JsonObject errorJson = gson.fromJson(errorBody, JsonObject.class);
+
+                        // Lấy giá trị của "message"
+                        String errorMessage = errorJson.has("message") ? errorJson.get("message").getAsString() : "Unknown error";
+                        // Bạn có thể xử lý chuỗi lỗi ở đây và hiển thị thông báo lỗi
+                        Toast.makeText(dsNguoiDung_MainActivity.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(dsNguoiDung_MainActivity.this, "Error parsing error body", Toast.LENGTH_SHORT).show();
+                    }
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<List<UserResponse>>> call, Throwable t) {
+                if (t instanceof IOException) {
+                    // Lỗi mạng, không thể kết nối với server
+                    Log.e("API Error", "Lỗi mạng: " + t.getMessage());
+                    Toast.makeText(dsNguoiDung_MainActivity.this, "Không thể kết nối với server", Toast.LENGTH_SHORT).show();
+                } else {
+                    // Lỗi khác (ví dụ: lỗi khi phân tích cú pháp JSON)
+                    Log.e("API Error", "Lỗi: " + t.getMessage());
+                    Toast.makeText(dsNguoiDung_MainActivity.this, "Đã có lỗi xảy ra", Toast.LENGTH_SHORT).show();
+                }
+            }
         });
     }
 
