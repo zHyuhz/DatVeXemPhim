@@ -13,17 +13,18 @@ import androidx.annotation.Nullable;
 
 import java.util.List;
 
+import vn.edu.stu.datvexemphim.DTO.Response.UserResponse;
 import vn.edu.stu.datvexemphim.Models.Accounts;
 import vn.edu.stu.datvexemphim.Models.User;
 import vn.edu.stu.datvexemphim.R;
 
-public class UserAdapter extends ArrayAdapter<User> {
-    private List<User> userList;
+public class UserAdapter extends ArrayAdapter<UserResponse> {
+    public List<UserResponse> userList;
     private Activity context;
     private int resource;
 
 
-    public UserAdapter(@NonNull Activity context, int resource, @NonNull List<User> objects) {
+    public UserAdapter(@NonNull Activity context, int resource, @NonNull List<UserResponse> objects) {
         super(context, resource, objects);
         this.userList = objects;
         this.context = context;
@@ -41,10 +42,9 @@ public class UserAdapter extends ArrayAdapter<User> {
         tv_sdt =item.findViewById(R.id.item_nguoiDung_sdt);
 
 
-        User ac = this.userList.get(position);
-        tv_hoTen.setText(ac.getHoTen());
-        tv_sdt.setText(ac.getSdt());
-
+        UserResponse ac = this.userList.get(position);
+        tv_hoTen.setText(ac.getFullName());
+        tv_sdt.setText(ac.getPhoneNumber());
 
         return item;
     }

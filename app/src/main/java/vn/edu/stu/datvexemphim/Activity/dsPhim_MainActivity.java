@@ -69,7 +69,7 @@ public class dsPhim_MainActivity extends AppCompatActivity {
         navigationView = findViewById(R.id.nav_menu_frmTrangChu);
         Menu menu = navigationView.getMenu();
 
-// Lấy item đang được chọn
+
         MenuItem checkedItem = menu.findItem(R.id.nav_QLPhim);
         checkedItem.setVisible(false);
         navigationView.setNavigationItemSelectedListener(menuItem -> {
